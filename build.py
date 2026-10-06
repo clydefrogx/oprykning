@@ -108,7 +108,7 @@ table{width:100%;border-collapse:collapse;table-layout:fixed;font-variant-numeri
 th{background:var(--hd);color:var(--mute);font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:center;padding:.65rem 0}
 th.tm{text-align:left;padding-left:.25rem}
 td{text-align:center;padding:.7rem 0;font-size:.9rem;border-bottom:1px solid var(--line)}
-.dot{display:inline-block;width:.6rem;height:.6rem;margin-right:.4rem;border-radius:50%;background:var(--gold)}
+.dot{display:inline-block;width:.6rem;height:.6rem;margin-left:.4rem;border-radius:50%;background:var(--gold)}
 .key{font-weight:800}
 .bd{display:inline-block;min-width:2rem;padding:.2rem .35rem;border-radius:.5rem;background:var(--bd);font-weight:700;font-size:.95rem;line-height:1.2}
 .up .bd{background:var(--bup)} .out .bd{background:var(--bout)}
@@ -152,7 +152,7 @@ def group(teams):
             sub = f'{t["pool"]}, nr. {t["place"]}'
         rows.append(
             f'<tr class="{cls}"><td><span class="bd">{t["rank"]}</span>{arrow(t.get("move"))}</td>'
-            f'<td class="tm"><b>{dot}{html.escape(t["team"])}</b><small>{sub}</small></td>'
+            f'<td class="tm"><b>{html.escape(t["team"])}{dot}</b><small>{sub}</small></td>'
             f'<td>{t["played"]}</td><td>{t["points"]}</td>'
             f'<td class="key">{num(t["gdpm"], sign=True)}</td></tr>'
         )
@@ -183,7 +183,7 @@ def render(teams):
 <div class="hero"><p class="kick">Herre Senior 4 7:7 Efterår</p><h1>Hvem rykker op?</h1>
 <p class="sub">De {PROMOTE} bedste oprykningsberettigede hold på tværs af {len(POOLS)} puljer rykker op. Opdateret {now}.</p></div>
 {body}
-<p class="note foot"><b>K</b> kampe, <b>P</b> point, <b>MF/K</b> målgennemsnit (målforskel pr. registreret kamp). <span class="dot"></span>{html.escape(MY_TEAM)}. Blåt rangnummer: rykker op. Rødt: kan ikke rykke op på grund af udeblivelse. ▲▼ viser flytning i placering siden stillingen sidst ændrede sig.</p>
+<p class="note foot"><b>K</b> kampe, <b>P</b> point, <b>MF/K</b> målgennemsnit (målforskel pr. registreret kamp). {html.escape(MY_TEAM)}<span class="dot"></span>. Blåt rangnummer: rykker op. Rødt: kan ikke rykke op på grund af udeblivelse. ▲▼ viser flytning i placering siden stillingen sidst ændrede sig.</p>
 <p class="note">Kilde: dbu.dk. Næste hold i puljen rykker en plads op, når et hold har udeblivelse.</p>
 </div></body></html>"""
 
