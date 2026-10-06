@@ -98,33 +98,48 @@ def apply_history(teams):
 
 
 CSS = """
-:root{color-scheme:dark;--bg:#070d13;--panel:#0c1a26;--line:#14222e;--hd:#0e1a24;--fg:#fff;--mute:#adb9c5;--up:#3ddc84;--down:#ff5a65;--bd:#1c2a37;--bup:#1d4ea8;--bout:#a3281f;--blue:#6b9bff;--gold:#ffc83d}
+:root{color-scheme:dark;--bg:#060b11;--panel:#0d1925;--panel2:#112133;--line:#172636;--bd:#1f3042;--fg:#f4f7fa;--mute:#adb9c5;--up:#3ddc84;--down:#ff6b75;--bup:#2563d6;--bupd:#1d4ea8;--bout:#a3281f;--blue:#7aa5ff;--gold:#ffc83d}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
-.in{max-width:44rem;margin:0 auto;padding-bottom:3rem}
-.hero{background:var(--panel);padding:1.25rem 1rem 1.1rem}
-.kick{margin:0 0 .35rem;font-size:.85rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
-h1{font-size:2rem;line-height:1.1;font-weight:800;margin:0}
-.sub{margin:.5rem 0 0;color:var(--mute);font-size:1rem;max-width:52ch}
-h2{margin:1.5rem 1rem .15rem;font-size:.9rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
-.note{margin:.15rem 1rem .6rem;font-size:.9rem;color:var(--mute);max-width:56ch}
+body{margin:0;background:radial-gradient(70rem 26rem at 50% -8rem,rgba(37,99,214,.3),transparent 70%) no-repeat,var(--bg);color:var(--fg);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.in{max-width:46rem;margin:0 auto;padding:0 .75rem 3rem}
+.hero{padding:1.75rem .25rem 1rem}
+.kick{display:inline-block;margin:0 0 .8rem;padding:.3rem .75rem;border-radius:2rem;background:rgba(122,165,255,.12);border:1px solid rgba(122,165,255,.3);font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
+h1{font-size:2.5rem;line-height:1.05;font-weight:800;letter-spacing:-.02em;margin:0}
+.sub{margin:.75rem 0 0;color:var(--mute);font-size:1.05rem;max-width:44ch}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0 0;padding:0;list-style:none}
+.chips li{padding:.35rem .8rem;border-radius:2rem;background:var(--panel);border:1px solid var(--bd);font-size:.88rem;color:var(--mute)}
+.chips b{color:var(--fg)}
+h2{display:flex;align-items:center;gap:.6rem;margin:1.75rem .25rem .2rem;font-size:1.2rem;font-weight:800}
+h2 span{padding:.15rem .65rem;border-radius:2rem;background:var(--bupd);font-size:.78rem;font-weight:700;letter-spacing:.04em}
+.note{margin:.2rem .25rem .8rem;font-size:.92rem;color:var(--mute);max-width:56ch}
+.card{background:var(--panel);border:1px solid var(--bd);border-radius:1rem;overflow:hidden;box-shadow:0 .5rem 1.5rem rgba(0,0,0,.35)}
 table{width:100%;border-collapse:collapse;table-layout:fixed;font-variant-numeric:tabular-nums}
-.c-rk{width:3.1rem}.c-n{width:2.3rem}.c-m{width:3.3rem}
-th{background:var(--hd);color:var(--mute);font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:center;padding:.65rem 0}
+.c-rk{width:2.9rem}.c-n{width:2.1rem}.c-m{width:3.1rem}
+th{background:var(--panel2);color:var(--mute);font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:center;padding:.7rem 0;border-bottom:1px solid var(--bd)}
 th.tm{text-align:left;padding-left:.25rem}
 td{text-align:center;padding:.75rem 0;font-size:1rem;border-bottom:1px solid var(--line)}
-.dot{display:inline-block;width:.6rem;height:.6rem;margin-left:.4rem;border-radius:50%;background:var(--gold)}
+tr:last-child td{border-bottom:0}
+.dot{display:inline-block;width:.6rem;height:.6rem;margin-left:.45rem;border-radius:50%;background:var(--gold);box-shadow:0 0 0 .18rem rgba(255,200,61,.25)}
 .key{font-weight:800}
-.bd{display:inline-block;min-width:2rem;padding:.2rem .35rem;border-radius:.5rem;background:var(--bd);font-weight:700;font-size:1rem;line-height:1.2}
-.up .bd{background:var(--bup)} .out .bd{background:var(--bout)}
+.pos{color:var(--up)} .neg{color:var(--down)}
+.bd{display:inline-block;min-width:2.1rem;padding:.2rem .35rem;border-radius:.6rem;background:var(--bd);font-weight:700;font-size:1rem;line-height:1.2}
+.b-up,.up .bd{background:var(--bup)} .b-out,.out .bd{background:var(--bout)}
+.up{background:linear-gradient(90deg,rgba(37,99,214,.16),transparent 70%)}
+.up td:first-child{box-shadow:inset .22rem 0 0 var(--bup)}
 .mv{display:block;margin-top:.15rem;font-size:.75rem;font-style:normal;font-weight:700;color:var(--mute)}
 .mv.u{color:var(--up)} .mv.d{color:var(--down)}
 .tm{text-align:left;padding-left:.25rem}
-.tm b{display:block;font-weight:600;overflow-wrap:anywhere}
+.tm b{display:block;font-weight:650;overflow-wrap:anywhere}
 .tm small{display:block;font-size:.82rem;color:var(--mute)}
 .out .tm b{color:var(--mute)}
-.line td{text-align:left;padding:.35rem 1rem;background:var(--hd);color:var(--blue);font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-bottom:0}
-.foot{margin:1.5rem 1rem 0}
+.line td{text-align:center;padding:.4rem;background:rgba(37,99,214,.14);color:var(--blue);font-size:.78rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;border-top:1px dashed rgba(122,165,255,.5);border-bottom:1px dashed rgba(122,165,255,.5)}
+.legend{margin-top:2rem;padding:1rem 1.1rem;background:var(--panel);border:1px solid var(--bd);border-radius:1rem;font-size:.92rem;color:var(--mute)}
+.legend p{margin:.45rem 0}
+.legend b{color:var(--fg)}
+.legend .dot{margin-right:.45rem}
+.legend .bd{min-width:1.6rem;margin-right:.4rem;padding:.1rem .3rem;font-size:.85rem;color:#fff}
+.src{margin:1rem .25rem 0;font-size:.85rem;color:var(--mute)}
+@media(min-width:40rem){.in{padding:0 1rem 4rem}h1{font-size:3rem}td{padding:.9rem 0}.c-rk{width:4rem}.c-n{width:3.5rem}.c-m{width:4.5rem}}
 """
 
 def arrow(m):
@@ -137,6 +152,12 @@ def arrow(m):
     if m > 0:
         return f'<i class="mv u" title="Op {m} {word}">▲{m}</i>'
     return f'<i class="mv d" title="Ned {-m} {word}">▼{-m}</i>'
+
+
+def sign_class(x):
+    """Colour class for a goal difference: green above zero, red below (as shown, rounded to 2 decimals)."""
+    x = round(x, 2)
+    return "pos" if x > 0 else ("neg" if x < 0 else "")
 
 
 def group(teams):
@@ -160,12 +181,12 @@ def group(teams):
             f'<tr class="{cls}"><td><span class="bd">{t["rank"]}</span>{arrow(t.get("move"))}</td>'
             f'<td class="tm"><b>{html.escape(t["team"])}{dot}</b><small>{sub}</small></td>'
             f'<td>{t["played"]}</td><td>{t["points"]}</td>'
-            f'<td class="key">{num(t["ppm"])}</td><td class="key">{num(t["gdpm"], sign=True)}</td></tr>'
+            f'<td class="key">{num(t["ppm"])}</td><td class="key {sign_class(t["gdpm"])}">{num(t["gdpm"], sign=True)}</td></tr>'
         )
         if t["rank"] == PROMOTE:  # the promotion line
             rows.append('<tr class="line"><td colspan="6">Grænse for oprykning</td></tr>')
     cols = '<col class="c-rk"><col>' + '<col class="c-n">' * 2 + '<col class="c-m">' * 2
-    return f'<table><colgroup>{cols}</colgroup>{head}{"".join(rows)}</table>'
+    return f'<div class="card"><table><colgroup>{cols}</colgroup>{head}{"".join(rows)}</table></div>'
 
 
 def render(teams):
@@ -174,16 +195,16 @@ def render(teams):
     rest = [t for t in teams if t["elig_place"] != 1]  # the 2nds first, then everyone else
     slots = PROMOTE - len(winners)  # places left for the 2nds
     sections = [
-        ("Puljevindere", "Nr. 1 i hver pulje rykker op.", winners),
-        ("De bedste 2'ere", f"De {slots} bedste 2'ere rykker op. Under linjen står de øvrige hold, og hold med udeblivelse står nederst.", rest),
+        ("Puljevindere", f"{len(winners)} pladser", "Nr. 1 i hver pulje rykker op.", winners),
+        ("De bedste 2'ere", f"{slots} pladser", f"De {slots} bedste 2'ere rykker op. Under linjen står de øvrige hold, og hold med udeblivelse står nederst.", rest),
     ]
-    body = "".join(f'<h2>{h}</h2><p class="note">{n}</p>{group(ts)}' for h, n, ts in sections if ts)
+    body = "".join(f'<h2>{h}<span>{b}</span></h2><p class="note">{n}</p>{group(ts)}' for h, b, n, ts in sections if ts)
     # Danish time (handles summer/winter time); the GitHub server itself runs on UTC
     now = datetime.datetime.now(ZoneInfo("Europe/Copenhagen")).strftime("%d-%m-%Y kl. %H:%M")
     return f"""<!doctype html>
 <html lang="da"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0c1a26">
+<meta name="theme-color" content="#060b11">
 <title>{TITLE}</title>
 <meta name="description" content="{DESC}">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -196,10 +217,15 @@ def render(teams):
 <meta name="twitter:card" content="summary_large_image">
 <style>{CSS}</style></head><body><div class="in">
 <div class="hero"><p class="kick">Herre Senior 4 7:7 Efterår</p><h1>Hvem rykker op?</h1>
-<p class="sub">De {PROMOTE} bedste oprykningsberettigede hold på tværs af {len(POOLS)} puljer rykker op. Opdateret {now}.</p></div>
+<p class="sub">De {PROMOTE} bedste oprykningsberettigede hold på tværs af {len(POOLS)} puljer rykker op.</p>
+<ul class="chips"><li>Opdateret <b>{now}</b></li><li><b>{PROMOTE}</b> pladser</li><li><b>{len(POOLS)}</b> puljer</li><li><b>{len(teams)}</b> hold</li></ul></div>
 {body}
-<p class="note foot"><b>K</b> kampe, <b>P</b> point, <b>P/K</b> pointgennemsnit (point pr. kamp), <b>MF/K</b> målgennemsnit (målforskel pr. registreret kamp). {html.escape(MY_TEAM)}<span class="dot"></span>. Blåt rangnummer: rykker op. Rødt: kan ikke rykke op på grund af udeblivelse. ▲▼ viser flytning i placering siden stillingen sidst ændrede sig.</p>
-<p class="note">Kilde: dbu.dk. Næste hold i puljen rykker en plads op, når et hold har udeblivelse.</p>
+<div class="legend">
+<p><b>K</b> kampe · <b>P</b> point · <b>P/K</b> pointgennemsnit (point pr. kamp) · <b>MF/K</b> målgennemsnit (målforskel pr. registreret kamp)</p>
+<p><span class="bd b-up">1</span>Rykker op <span class="bd b-out">1</span>Kan ikke rykke op (udeblivelse)</p>
+<p>▲▼ viser flytning i placering siden stillingen sidst ændrede sig. {html.escape(MY_TEAM)}<span class="dot"></span> er dit hold.</p>
+</div>
+<p class="src">Kilde: dbu.dk. Næste hold i puljen rykker en plads op, når et hold har udeblivelse.</p>
 </div></body></html>"""
 
 
