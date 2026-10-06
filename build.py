@@ -95,20 +95,20 @@ def apply_history(teams):
 
 
 CSS = """
-:root{color-scheme:dark;--bg:#060b11;--panel:#0d1925;--panel2:#112133;--line:#172636;--bd:#1f3042;--fg:#f4f7fa;--mute:#adb9c5;--up:#3ddc84;--down:#ff6b75;--bup:#2563d6;--bupd:#1d4ea8;--bout:#a3281f;--blue:#7aa5ff;--gold:#ffc83d}
+:root{color-scheme:dark;--bg:#0d0d0c;--panel:#171716;--panel2:#1f1f1d;--line:#262624;--bd:#2f2f2c;--fg:#fafafa;--mute:#b8b8b4;--up:#3ddc84;--down:#ff8080;--promo:#c20d2d;--promo-dark:#9e0b25;--out:#4a4a46;--accent:#ff8a9b;--dot:#fff}
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(70rem 26rem at 50% -8rem,rgba(37,99,214,.3),transparent 70%) no-repeat,var(--bg);color:var(--fg);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+body{margin:0;background:radial-gradient(70rem 26rem at 50% -8rem,rgba(194,13,45,.28),transparent 70%) no-repeat,var(--bg);color:var(--fg);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 .in{max-width:46rem;margin:0 auto;padding:0 .75rem 3rem}
 .hero{padding:1.75rem .25rem .25rem}
 .hero+h2{margin-top:.715rem}
-.kick{display:inline-block;margin:0 0 .8rem;padding:.3rem .75rem;border-radius:2rem;background:rgba(122,165,255,.12);border:1px solid rgba(122,165,255,.3);font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
+.kick{display:inline-block;margin:0 0 .8rem;padding:.3rem .75rem;border-radius:2rem;background:rgba(194,13,45,.16);border:1px solid rgba(194,13,45,.5);font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
 h1{font-size:2.5rem;line-height:1.05;font-weight:800;letter-spacing:-.02em;margin:0}
 .sub{margin:.75rem 0 0;color:var(--mute);font-size:1.05rem;max-width:44ch}
 .chips{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0 0;padding:0;list-style:none}
 .chips li{padding:.35rem .8rem;border-radius:2rem;background:var(--panel);border:1px solid var(--bd);font-size:.88rem;color:var(--mute)}
 .chips b{color:var(--fg)}
 h2{display:flex;align-items:center;gap:.6rem;margin:1.75rem .25rem .2rem;font-size:1.2rem;font-weight:800}
-h2 span{padding:.15rem .65rem;border-radius:2rem;background:var(--bupd);font-size:.78rem;font-weight:700;letter-spacing:.04em}
+h2 span{padding:.15rem .65rem;border-radius:2rem;background:var(--promo-dark);font-size:.78rem;font-weight:700;letter-spacing:.04em}
 .note{margin:.2rem .25rem .8rem;font-size:.92rem;color:var(--mute);max-width:56ch}
 .card{background:var(--panel);border:1px solid var(--bd);border-radius:1rem;overflow:hidden;box-shadow:0 .5rem 1.5rem rgba(0,0,0,.35)}
 table{width:100%;border-collapse:collapse;table-layout:fixed;font-variant-numeric:tabular-nums}
@@ -120,11 +120,11 @@ th:first-child,td.rk{text-align:left;padding-left:calc(.8rem + .22rem)}  /* .22r
 .tm{text-align:left;padding-left:.25rem}
 .tm b{display:block;font-size:.875rem;font-weight:650;line-height:1.3}
 .tm small{display:block;font-size:.8rem;color:var(--mute)}
-.dot{display:inline-block;width:.6rem;height:.6rem;margin-left:.45rem;border-radius:50%;background:var(--gold);box-shadow:0 0 0 .18rem rgba(255,200,61,.25)}
+.dot{display:inline-block;width:.6rem;height:.6rem;margin-left:.45rem;border-radius:50%;background:var(--dot);box-shadow:0 0 0 .18rem rgba(255,255,255,.25)}
 .bd{display:inline-block;min-width:1.9rem;padding:.15rem .3rem;border-radius:.6rem;background:var(--bd);font-weight:700;font-size:.95rem;line-height:1.2;text-align:center}
-.b-up,.up .bd{background:var(--bup)} .b-out,.out .bd{background:var(--bout)}
-.up{background:linear-gradient(90deg,rgba(37,99,214,.16),transparent 70%)}
-.up td.rk{box-shadow:inset .22rem 0 0 var(--bup)}
+.b-up,.up .bd{background:var(--promo)} .b-out,.out .bd{background:var(--out)}
+.up{background:linear-gradient(90deg,rgba(194,13,45,.16),transparent 70%)}
+.up td.rk{box-shadow:inset .22rem 0 0 var(--promo)}
 .mv{display:block;width:1.9rem;margin-top:.15rem;text-align:center;font-size:.75rem;font-style:normal;font-weight:700;color:var(--mute)}
 .mv.u{color:var(--up)} .mv.d{color:var(--down)}
 .out .tm b{color:var(--mute)}
@@ -195,7 +195,7 @@ def render(teams):
     return f"""<!doctype html>
 <html lang="da"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#060b11">
+<meta name="theme-color" content="#0d0d0c">
 <title>{TITLE}</title>
 <meta name="description" content="{DESC}">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
