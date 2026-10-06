@@ -102,7 +102,8 @@ CSS = """
 *{box-sizing:border-box}
 body{margin:0;background:radial-gradient(70rem 26rem at 50% -8rem,rgba(37,99,214,.3),transparent 70%) no-repeat,var(--bg);color:var(--fg);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 .in{max-width:46rem;margin:0 auto;padding:0 .75rem 3rem}
-.hero{padding:1.75rem .25rem 1rem}
+.hero{padding:1.75rem .25rem .25rem}
+.hero+h2{margin-top:1.1rem}
 .kick{display:inline-block;margin:0 0 .8rem;padding:.3rem .75rem;border-radius:2rem;background:rgba(122,165,255,.12);border:1px solid rgba(122,165,255,.3);font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
 h1{font-size:2.5rem;line-height:1.05;font-weight:800;letter-spacing:-.02em;margin:0}
 .sub{margin:.75rem 0 0;color:var(--mute);font-size:1.05rem;max-width:44ch}
@@ -117,21 +118,20 @@ table{width:100%;border-collapse:collapse;table-layout:fixed;font-variant-numeri
 .c-rk{width:3.5rem}.c-n{width:3rem}.c-s{width:.58rem}
 th{background:var(--panel2);color:var(--mute);font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:center;padding:.7rem 0;border-bottom:1px solid var(--bd)}
 td{text-align:center;padding:0;font-size:.9rem}
-td.rk,.b td{border-bottom:1px solid var(--line)}
-tr:last-child td,tr:nth-last-child(2) td.rk{border-bottom:0}
-th:first-child,td.rk{text-align:left;padding-left:calc(.8rem + .22rem)}  /* .22rem = the blue bar */
-td.rk{padding-top:.75rem;padding-bottom:.75rem;vertical-align:middle}
-.nm{text-align:left;padding:.75rem .5rem .1rem .25rem}
+th:first-child{text-align:left;padding-left:calc(.8rem + .22rem)}  /* .22rem = the blue bar */
+.nm{text-align:left;padding:.65rem .5rem 0 calc(.8rem + .22rem)}
 .nm b{display:block;font-size:1rem;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.b td{padding:0 0 .75rem;vertical-align:baseline;line-height:1.4}
-.b td.sb{text-align:left;padding-left:.25rem;font-size:.82rem;color:var(--mute);line-height:1.3;padding-top:.1rem}
+.b td{padding:.2rem 0 .65rem;vertical-align:middle;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+.b td.rk{text-align:left;padding-left:calc(.8rem + .22rem)}
+.b td.sb{text-align:left;padding-left:.25rem;font-size:.82rem;color:var(--mute);line-height:1.3}
 .mv{width:2.1rem;text-align:center}
 .dot{display:inline-block;width:.6rem;height:.6rem;margin-left:.45rem;border-radius:50%;background:var(--gold);box-shadow:0 0 0 .18rem rgba(255,200,61,.25)}
 .key{font-weight:800}
 .bd{display:inline-block;min-width:2.1rem;padding:.2rem .35rem;border-radius:.6rem;background:var(--bd);font-weight:700;font-size:1rem;line-height:1.2}
 .b-up,.up .bd{background:var(--bup)} .b-out,.out .bd{background:var(--bout)}
 .up{background:linear-gradient(90deg,rgba(37,99,214,.16),transparent 70%)}
-.up td.rk{box-shadow:inset .22rem 0 0 var(--bup)}
+.up td.nm,.up td.rk{box-shadow:inset .22rem 0 0 var(--bup)}
 .mv{display:block;margin-top:.15rem;font-size:.75rem;font-style:normal;font-weight:700;color:var(--mute)}
 .mv.u{color:var(--up)} .mv.d{color:var(--down)}
 th.tm{text-align:left;padding-left:.25rem}
@@ -161,7 +161,7 @@ def arrow(m):
 
 def group(teams):
     """One standings table. Classes p and g switch between the points and the goals columns."""
-    head = ('<tr><th>#</th><th class="tm">Hold</th><th title="Kampe">K</th>'
+    head = ('<tr><th>#</th><th class="tm">Pulje</th><th title="Kampe">K</th>'
             '<th title="Point">P</th>'
             '<th class="key" title="Pointgennemsnit: point pr. kamp">P/K</th>'
             '<th class="key" title="Målgennemsnit: målforskel pr. registreret kamp">MF/K</th><th></th></tr>')
@@ -176,10 +176,10 @@ def group(teams):
             sub = f'{t["pool"]}, nr. {t["place"]} (regnes som nr. {ep})'
         else:
             sub = f'{t["pool"]}, nr. {t["place"]}'
-        rows.append(  # line 1: rank and the full team name; line 2: pool info and the numbers
-            f'<tr class="{cls}"><td class="rk" rowspan="2"><span class="bd">{t["rank"]}</span>{arrow(t.get("move"))}</td>'
-            f'<td class="nm" colspan="6"><b>{html.escape(t["team"])}{dot}</b></td></tr>'
-            f'<tr class="{cls} b"><td class="sb">{sub}</td>'
+        rows.append(  # line 1: the full team name; line 2: rank, pool info and the numbers on one level
+            f'<tr class="{cls}"><td class="nm" colspan="7"><b>{html.escape(t["team"])}{dot}</b></td></tr>'
+            f'<tr class="{cls} b"><td class="rk"><span class="bd">{t["rank"]}</span>{arrow(t.get("move"))}</td>'
+            f'<td class="sb">{sub}</td>'
             f'<td>{t["played"]}</td><td>{t["points"]}</td>'
             f'<td class="key">{num(t["ppm"])}</td><td class="key">{num(t["gdpm"], sign=True)}</td><td></td></tr>'
         )
