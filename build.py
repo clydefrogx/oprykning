@@ -23,7 +23,7 @@ MY_TEAM = "Union 9"  # marked with a dot in the tables
 SITE_URL = "https://clydefrogx.github.io/oprykning/"  # share previews need the full address
 ASSETS = pathlib.Path("assets")  # icons, share image and manifest, copied into site/
 TITLE = "Hvem rykker op? - Herre Senior 4 7:7"
-DESC = f"De {PROMOTE} bedste hold på tværs af {len(POOLS)} puljer rykker op i Herre Senior 4 7:7 Efterår."
+DESC = f"Stillingen lige nu i Herre Senior 4 7:7 Efterår. Hvis sæsonen sluttede i dag, ville disse {PROMOTE} hold rykke op. Opdateres hver dag kl. 03:00."
 
 
 def read_pool(url):
@@ -108,9 +108,8 @@ body{margin:0;background:radial-gradient(70rem 26rem at 50% -8rem,rgba(37,99,214
 h1{font-size:2.5rem;line-height:1.05;font-weight:800;letter-spacing:-.02em;margin:0}
 .sub{margin:.75rem 0 0;color:var(--mute);font-size:1.05rem;max-width:44ch}
 .chips{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0 0;padding:0;list-style:none}
-.chips li{padding:.4rem .9rem;border-radius:1rem;background:var(--panel);border:1px solid var(--bd);font-size:.88rem;color:var(--mute)}
+.chips li{padding:.35rem .8rem;border-radius:2rem;background:var(--panel);border:1px solid var(--bd);font-size:.88rem;color:var(--mute)}
 .chips b{color:var(--fg)}
-.chips span{display:block}
 h2{display:flex;align-items:center;gap:.6rem;margin:1.75rem .25rem .2rem;font-size:1.2rem;font-weight:800}
 h2 span{padding:.15rem .65rem;border-radius:2rem;background:var(--bupd);font-size:.78rem;font-weight:700;letter-spacing:.04em}
 .note{margin:.2rem .25rem .8rem;font-size:.92rem;color:var(--mute);max-width:56ch}
@@ -214,8 +213,8 @@ def render(teams):
 <meta name="twitter:card" content="summary_large_image">
 <style>{CSS}</style></head><body><div class="in">
 <div class="hero"><p class="kick">Herre Senior 4 7:7 Efterår</p><h1>Hvem rykker op?</h1>
-<p class="sub">Stillingen lige nu. Hvis sæsonen sluttede i dag, ville disse {PROMOTE} hold rykke op.</p>
-<ul class="chips"><li><span>Opdateret <b>{now}</b></span><span>Opdateres hver dag kl. 03:00</span></li></ul></div>
+<p class="sub">Stillingen lige nu. Hvis sæsonen sluttede i dag, ville disse {PROMOTE} hold rykke op.<br>Opdateres hver dag kl. 03:00</p>
+<ul class="chips"><li>Opdateret <b>{now}</b></li></ul></div>
 {body}
 <div class="legend">
 <p><b>K</b> kampe</p>
