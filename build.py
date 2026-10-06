@@ -114,11 +114,13 @@ h2 span{padding:.15rem .65rem;border-radius:2rem;background:var(--bupd);font-siz
 .note{margin:.2rem .25rem .8rem;font-size:.92rem;color:var(--mute);max-width:56ch}
 .card{background:var(--panel);border:1px solid var(--bd);border-radius:1rem;overflow:hidden;box-shadow:0 .5rem 1.5rem rgba(0,0,0,.35)}
 table{width:100%;border-collapse:collapse;table-layout:fixed;font-variant-numeric:tabular-nums}
-.c-rk{width:2.9rem}.c-n{width:2.1rem}.c-m{width:3.1rem}
+.c-rk{width:3rem}.c-n{width:2.2rem}.c-m{width:3.4rem}.c-l{width:3.9rem}
 th{background:var(--panel2);color:var(--mute);font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:center;padding:.7rem 0;border-bottom:1px solid var(--bd)}
 th.tm{text-align:left;padding-left:.25rem}
-td{text-align:center;padding:.75rem 0;font-size:1rem;border-bottom:1px solid var(--line)}
+td{text-align:center;padding:.75rem 0;font-size:.95rem;border-bottom:1px solid var(--line)}
 tr:last-child td{border-bottom:0}
+td:last-child,th:last-child{padding-right:.6rem}
+td:first-child{padding-left:.3rem}
 .dot{display:inline-block;width:.6rem;height:.6rem;margin-left:.45rem;border-radius:50%;background:var(--gold);box-shadow:0 0 0 .18rem rgba(255,200,61,.25)}
 .key{font-weight:800}
 .bd{display:inline-block;min-width:2.1rem;padding:.2rem .35rem;border-radius:.6rem;background:var(--bd);font-weight:700;font-size:1rem;line-height:1.2}
@@ -128,7 +130,7 @@ tr:last-child td{border-bottom:0}
 .mv{display:block;margin-top:.15rem;font-size:.75rem;font-style:normal;font-weight:700;color:var(--mute)}
 .mv.u{color:var(--up)} .mv.d{color:var(--down)}
 .tm{text-align:left;padding-left:.25rem}
-.tm b{display:block;font-weight:650;overflow-wrap:anywhere}
+.tm b{display:block;font-size:1rem;font-weight:650;overflow-wrap:anywhere}
 .tm small{display:block;font-size:.82rem;color:var(--mute)}
 .out .tm b{color:var(--mute)}
 .legend{margin-top:2rem;padding:1rem 1.1rem;background:var(--panel);border:1px solid var(--bd);border-radius:1rem;font-size:.92rem;color:var(--mute)}
@@ -138,7 +140,8 @@ tr:last-child td{border-bottom:0}
 .sw{display:inline-block;width:.9rem;height:.9rem;margin-right:.5rem;border-radius:.3rem;vertical-align:-.1rem}
 .src{margin:.3rem .25rem 0;font-size:.85rem;color:var(--mute)}
 .legend+.src{margin-top:1rem}
-@media(min-width:40rem){.in{padding:0 1rem 4rem}h1{font-size:3rem}td{padding:.9rem 0}.c-rk{width:4rem}.c-n{width:3.5rem}.c-m{width:4.5rem}}
+@media(max-width:26rem){.in{padding-left:.5rem;padding-right:.5rem}}
+@media(min-width:40rem){.in{padding:0 1rem 4rem}h1{font-size:3rem}td{padding:.9rem 0}.c-rk{width:4rem}.c-n{width:3.5rem}.c-m{width:4.5rem}.c-l{width:5rem}}
 """
 
 def arrow(m):
@@ -176,7 +179,7 @@ def group(teams):
             f'<td>{t["played"]}</td><td>{t["points"]}</td>'
             f'<td class="key">{num(t["ppm"])}</td><td class="key">{num(t["gdpm"], sign=True)}</td></tr>'
         )
-    cols = '<col class="c-rk"><col>' + '<col class="c-n">' * 2 + '<col class="c-m">' * 2
+    cols = '<col class="c-rk"><col>' + '<col class="c-n">' * 2 + '<col class="c-m"><col class="c-l">'
     return f'<div class="card"><table><colgroup>{cols}</colgroup>{head}{"".join(rows)}</table></div>'
 
 
@@ -211,7 +214,7 @@ def render(teams):
 <style>{CSS}</style></head><body><div class="in">
 <div class="hero"><p class="kick">Herre Senior 4 7:7 Efterår</p><h1>Hvem rykker op?</h1>
 <p class="sub">De {PROMOTE} bedste oprykningsberettigede hold på tværs af {len(POOLS)} puljer rykker op.</p>
-<ul class="chips"><li>Opdateret <b>{now}</b></li><li><b>{PROMOTE}</b> pladser</li><li><b>{len(POOLS)}</b> puljer</li><li><b>{len(teams)}</b> hold</li></ul></div>
+<ul class="chips"><li>Opdateret <b>{now}</b></li></ul></div>
 {body}
 <div class="legend">
 <p><b>K</b> kampe</p>
