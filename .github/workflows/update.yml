@@ -4,11 +4,11 @@ on:
   push:
     branches: [main]             # deploy as soon as changes are pushed
   schedule:
-    # Once a day at 00:00 Danish time. GitHub only understands UTC, and Danish
-    # midnight is 22:00 UTC in summer but 23:00 UTC in winter, so the job is
+    # Once a day at 03:00 Danish time. GitHub only understands UTC, and Danish
+    # 03:00 is 01:00 UTC in summer but 02:00 UTC in winter, so the job is
     # started at both times and the "gate" step below lets only the right one run.
-    - cron: "0 22 * * *"
-    - cron: "0 23 * * *"
+    - cron: "0 1 * * *"
+    - cron: "0 2 * * *"
   workflow_dispatch:             # lets you start it by hand from the Actions tab
 
 permissions:
@@ -26,12 +26,12 @@ jobs:
     environment:
       name: github-pages
     steps:
-      - name: Gate (scheduled runs only continue at midnight Danish time)
+      - name: Gate (scheduled runs only continue at 03:00 Danish time)
         id: gate
         run: |
           hour=$(TZ=Europe/Copenhagen date +%H)
-          if [ "${{ github.event_name }}" = "schedule" ] && [ "$hour" != "00" ]; then
-            echo "Danish hour is $hour, not midnight: skipping"
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "$hour" != "03" ]; then
+            echo "Danish hour is $hour, not 03: skipping"
             echo "go=false" >> "$GITHUB_OUTPUT"
           else
             echo "go=true" >> "$GITHUB_OUTPUT"
