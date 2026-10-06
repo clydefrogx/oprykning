@@ -230,7 +230,7 @@ def render(teams):
 <p><span class="sw b-out"></span>Kan ikke rykke op (udeblivelse)</p>
 <p><b>▲▼</b> flytning i placering siden stillingen sidst ændrede sig</p>
 <p><span class="dot"></span>{html.escape(MY_TEAM)} er dit hold</p>
-<p>Næste hold i puljen rykker en plads op, når et hold har udeblivelse.</p>
+<p>Næste hold i puljen rykker en plads op, når et hold er udeblevet.</p>
 </div>
 <p class="src">Kilde: dbu.dk.</p>
 </div></body></html>"""
