@@ -213,7 +213,7 @@ def render(teams):
 <meta name="twitter:card" content="summary_large_image">
 <style>{CSS}</style></head><body><div class="in">
 <div class="hero"><p class="kick">Herre Senior 4 7:7 Efterår</p><h1>Hvem rykker op?</h1>
-<p class="sub">De {PROMOTE} bedste oprykningsberettigede hold på tværs af {len(POOLS)} puljer rykker op.</p>
+<p class="sub">Stillingen lige nu. Hvis sæsonen sluttede i dag, ville disse {PROMOTE} hold rykke op.</p>
 <ul class="chips"><li>Opdateret <b>{now}</b></li></ul></div>
 {body}
 <div class="legend">
