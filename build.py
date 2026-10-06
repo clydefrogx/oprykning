@@ -108,9 +108,7 @@ table{width:100%;border-collapse:collapse;table-layout:fixed;font-variant-numeri
 th{background:var(--hd);color:var(--mute);font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:center;padding:.65rem 0}
 th.tm{text-align:left;padding-left:.25rem}
 td{text-align:center;padding:.7rem 0;font-size:.9rem;border-bottom:1px solid var(--line)}
-.me td{background:#2a2410}.me td:first-child{box-shadow:inset .25rem 0 0 var(--gold)}
-.me .tm b{color:var(--gold)}
-.mine{display:inline-block;margin-top:.75rem;padding:.4rem .8rem;border-radius:.5rem;background:var(--gold);color:#1a1400;font-size:.85rem;font-weight:700;text-decoration:none}
+.dot{display:inline-block;width:.6rem;height:.6rem;margin-right:.4rem;border-radius:50%;background:var(--gold)}
 .key{font-weight:800}
 .bd{display:inline-block;min-width:2rem;padding:.2rem .35rem;border-radius:.5rem;background:var(--bd);font-weight:700;font-size:.95rem;line-height:1.2}
 .up .bd{background:var(--bup)} .out .bd{background:var(--bout)}
@@ -139,14 +137,12 @@ def arrow(m):
 def group(teams):
     """One standings table. Classes p and g switch between the points and the goals columns."""
     head = ('<tr><th>#</th><th class="tm">Hold</th><th title="Kampe">K</th>'
-            '<th title="Point">P</th><th class="key" title="Point pr. kamp">P/K</th>'
-            '<th title="Målforskel pr. kamp">MF/K</th><th title="Mål pr. kamp">M/K</th></tr>')
+            '<th title="Point">P</th>'
+            '<th class="key" title="Målgennemsnit: målforskel pr. registreret kamp">MF/K</th></tr>')
     rows = []
     for t in teams:
         cls = "up" if t["promotes"] else ("out" if not t["eligible"] else "")
-        mine = t["team"] == MY_TEAM
-        if mine:
-            cls += " me"
+        dot = '<span class="dot" title="Dit hold"></span>' if t["team"] == MY_TEAM else ""
         ep = t["elig_place"]
         if not t["eligible"]:
             sub = f'{t["pool"]}, nr. {t["place"]}, udeblivelse'
@@ -155,14 +151,14 @@ def group(teams):
         else:
             sub = f'{t["pool"]}, nr. {t["place"]}'
         rows.append(
-            f'<tr class="{cls}"{" id=me" if mine else ""}><td><span class="bd">{t["rank"]}</span>{arrow(t.get("move"))}</td>'
-            f'<td class="tm"><b>{html.escape(t["team"])}</b><small>{sub}</small></td>'
-            f'<td>{t["played"]}</td><td>{t["points"]}</td><td class="key">{num(t["ppm"])}</td>'
-            f'<td>{num(t["gdpm"], sign=True)}</td><td>{num(t["gfpm"])}</td></tr>'
+            f'<tr class="{cls}"><td><span class="bd">{t["rank"]}</span>{arrow(t.get("move"))}</td>'
+            f'<td class="tm"><b>{dot}{html.escape(t["team"])}</b><small>{sub}</small></td>'
+            f'<td>{t["played"]}</td><td>{t["points"]}</td>'
+            f'<td class="key">{num(t["gdpm"], sign=True)}</td></tr>'
         )
         if t["rank"] == PROMOTE:  # the promotion line
-            rows.append('<tr class="line"><td colspan="7">Grænse for oprykning</td></tr>')
-    cols = '<col class="c-rk"><col>' + '<col class="c-n">' * 5
+            rows.append('<tr class="line"><td colspan="5">Grænse for oprykning</td></tr>')
+    cols = '<col class="c-rk"><col>' + '<col class="c-n">' * 3
     return f'<table><colgroup>{cols}</colgroup>{head}{"".join(rows)}</table>'
 
 
@@ -178,8 +174,6 @@ def render(teams):
     body = "".join(f'<h2>{h}</h2><p class="note">{n}</p>{group(ts)}' for h, n, ts in sections if ts)
     # Danish time (handles summer/winter time); the GitHub server itself runs on UTC
     now = datetime.datetime.now(ZoneInfo("Europe/Copenhagen")).strftime("%d-%m-%Y kl. %H:%M")
-    me = any(t["team"] == MY_TEAM for t in teams)
-    find = f'<br><a class="mine" href="#me">Find {html.escape(MY_TEAM)}</a>' if me else ""
     return f"""<!doctype html>
 <html lang="da"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -187,9 +181,9 @@ def render(teams):
 <title>Hvem rykker op? - Herre Senior 4 7:7</title>
 <style>{CSS}</style></head><body><div class="in">
 <div class="hero"><p class="kick">Herre Senior 4 7:7 Efterår</p><h1>Hvem rykker op?</h1>
-<p class="sub">De {PROMOTE} bedste oprykningsberettigede hold på tværs af {len(POOLS)} puljer rykker op. Opdateret {now}.</p>{find}</div>
+<p class="sub">De {PROMOTE} bedste oprykningsberettigede hold på tværs af {len(POOLS)} puljer rykker op. Opdateret {now}.</p></div>
 {body}
-<p class="note foot"><b>K</b> kampe, <b>P</b> point, <b>P/K</b> point pr. kamp, <b>MF/K</b> målforskel pr. kamp, <b>M/K</b> scorede mål pr. kamp. Ved lighed afgør P/K, derefter MF/K, derefter M/K. Blåt rangnummer: rykker op. Rødt: kan ikke rykke op på grund af udeblivelse. ▲▼ viser flytning i placering siden stillingen sidst ændrede sig.</p>
+<p class="note foot"><b>K</b> kampe, <b>P</b> point, <b>MF/K</b> målgennemsnit (målforskel pr. registreret kamp). <span class="dot"></span>{html.escape(MY_TEAM)}. Blåt rangnummer: rykker op. Rødt: kan ikke rykke op på grund af udeblivelse. ▲▼ viser flytning i placering siden stillingen sidst ændrede sig.</p>
 <p class="note">Kilde: dbu.dk. Næste hold i puljen rykker en plads op, når et hold har udeblivelse.</p>
 </div></body></html>"""
 
