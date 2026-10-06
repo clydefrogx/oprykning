@@ -136,9 +136,10 @@ tr:last-child td{border-bottom:0}
 .legend{margin-top:2rem;padding:1rem 1.1rem;background:var(--panel);border:1px solid var(--bd);border-radius:1rem;font-size:.92rem;color:var(--mute)}
 .legend p{margin:.45rem 0}
 .legend b{color:var(--fg)}
-.legend .dot{margin-right:.45rem}
-.legend .bd{min-width:1.6rem;margin-right:.4rem;padding:.1rem .3rem;font-size:.85rem;color:#fff}
-.src{margin:1rem .25rem 0;font-size:.85rem;color:var(--mute)}
+.legend .dot{margin:0 .6rem 0 .1rem}
+.sw{display:inline-block;width:.9rem;height:.9rem;margin-right:.5rem;border-radius:.3rem;vertical-align:-.1rem}
+.src{margin:.3rem .25rem 0;font-size:.85rem;color:var(--mute)}
+.legend+.src{margin-top:1rem}
 @media(min-width:40rem){.in{padding:0 1rem 4rem}h1{font-size:3rem}td{padding:.9rem 0}.c-rk{width:4rem}.c-n{width:3.5rem}.c-m{width:4.5rem}}
 """
 
@@ -221,11 +222,17 @@ def render(teams):
 <ul class="chips"><li>Opdateret <b>{now}</b></li><li><b>{PROMOTE}</b> pladser</li><li><b>{len(POOLS)}</b> puljer</li><li><b>{len(teams)}</b> hold</li></ul></div>
 {body}
 <div class="legend">
-<p><b>K</b> kampe · <b>P</b> point · <b>P/K</b> pointgennemsnit (point pr. kamp) · <b>MF/K</b> målgennemsnit (målforskel pr. registreret kamp)</p>
-<p><span class="bd b-up">1</span>Rykker op <span class="bd b-out">1</span>Kan ikke rykke op (udeblivelse)</p>
-<p>▲▼ viser flytning i placering siden stillingen sidst ændrede sig. {html.escape(MY_TEAM)}<span class="dot"></span> er dit hold.</p>
+<p><b>K</b> kampe</p>
+<p><b>P</b> point</p>
+<p><b>P/K</b> pointgennemsnit (point pr. kamp)</p>
+<p><b>MF/K</b> målgennemsnit (målforskel pr. registreret kamp)</p>
+<p><span class="sw b-up"></span>Rykker op</p>
+<p><span class="sw b-out"></span>Kan ikke rykke op (udeblivelse)</p>
+<p><b>▲▼</b> flytning i placering siden stillingen sidst ændrede sig</p>
+<p><span class="dot"></span>{html.escape(MY_TEAM)} er dit hold</p>
 </div>
-<p class="src">Kilde: dbu.dk. Næste hold i puljen rykker en plads op, når et hold har udeblivelse.</p>
+<p class="src">Kilde: dbu.dk.</p>
+<p class="src">Næste hold i puljen rykker en plads op, når et hold har udeblivelse.</p>
 </div></body></html>"""
 
 
