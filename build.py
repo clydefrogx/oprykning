@@ -4,14 +4,12 @@ Run:      python build.py
 Output:   site/index.html  (open it in a browser)
 Needs:    pip install requests beautifulsoup4
 """
-import datetime
 import html
 import json
 import pathlib
 import re
 import shutil
 import time
-from zoneinfo import ZoneInfo
 
 import requests
 from bs4 import BeautifulSoup
@@ -100,13 +98,10 @@ CSS = """
 body{margin:0;background:radial-gradient(70rem 26rem at 50% -8rem,rgba(37,99,214,.3),transparent 70%) no-repeat,var(--bg);color:var(--fg);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 .in{max-width:46rem;margin:0 auto;padding:0 .75rem 3rem}
 .hero{padding:1.75rem .25rem .25rem}
-.hero+h2{margin-top:.715rem}
+.hero+h2{margin-top:1.4rem}
 .kick{display:inline-block;margin:0 0 .8rem;padding:.3rem .75rem;border-radius:2rem;background:rgba(122,165,255,.12);border:1px solid rgba(122,165,255,.3);font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
 h1{font-size:2.5rem;line-height:1.05;font-weight:800;letter-spacing:-.02em;margin:0}
 .sub{margin:.75rem 0 0;color:var(--mute);font-size:1.05rem;max-width:44ch}
-.chips{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0 0;padding:0;list-style:none}
-.chips li{padding:.35rem .8rem;border-radius:2rem;background:var(--panel);border:1px solid var(--bd);font-size:.88rem;color:var(--mute)}
-.chips b{color:var(--fg)}
 h2{display:flex;align-items:center;gap:.6rem;margin:1.75rem .25rem .2rem;font-size:1.2rem;font-weight:800}
 h2 span{padding:.15rem .65rem;border-radius:2rem;background:var(--bupd);font-size:.78rem;font-weight:700;letter-spacing:.04em}
 .note{margin:.2rem .25rem .8rem;font-size:.92rem;color:var(--mute);max-width:56ch}
@@ -190,8 +185,6 @@ def render(teams):
         ("Resten", f"{len(rest)} hold", "Disse hold rykker ikke op. Hold med udeblivelse står nederst.", rest),
     ]
     body = "".join(f'<h2>{h}<span>{b}</span></h2><p class="note">{n}</p>{group(ts)}' for h, b, n, ts in sections if ts)
-    # Danish time (handles summer/winter time); the GitHub server itself runs on UTC
-    now = datetime.datetime.now(ZoneInfo("Europe/Copenhagen")).strftime("%d-%m-%Y kl. %H:%M")
     return f"""<!doctype html>
 <html lang="da"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -208,8 +201,7 @@ def render(teams):
 <meta name="twitter:card" content="summary_large_image">
 <style>{CSS}</style></head><body><div class="in">
 <div class="hero"><p class="kick">Herre Senior 4 7:7 Efterår</p><h1>Hvem rykker op?</h1>
-<p class="sub">Stillingen lige nu. Hvis sæsonen sluttede i dag, ville disse {PROMOTE} hold rykke op.<br>Opdateres hver dag kl. 03:00</p>
-<ul class="chips"><li>Opdateret <b>{now}</b></li></ul></div>
+<p class="sub">Stillingen lige nu. Hvis sæsonen sluttede i dag, ville disse {PROMOTE} hold rykke op.<br>Opdateres hver dag kl. 03:00</p></div>
 {body}
 <div class="legend">
 <p><b>K</b> kampe</p>
