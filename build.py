@@ -103,7 +103,7 @@ CSS = """
 body{margin:0;background:radial-gradient(70rem 26rem at 50% -8rem,rgba(37,99,214,.3),transparent 70%) no-repeat,var(--bg);color:var(--fg);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 .in{max-width:46rem;margin:0 auto;padding:0 .75rem 3rem}
 .hero{padding:1.75rem .25rem .25rem}
-.hero+h2{margin-top:1.1rem}
+.hero+h2{margin-top:.715rem}
 .kick{display:inline-block;margin:0 0 .8rem;padding:.3rem .75rem;border-radius:2rem;background:rgba(122,165,255,.12);border:1px solid rgba(122,165,255,.3);font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
 h1{font-size:2.5rem;line-height:1.05;font-weight:800;letter-spacing:-.02em;margin:0}
 .sub{margin:.75rem 0 0;color:var(--mute);font-size:1.05rem;max-width:44ch}
@@ -115,9 +115,9 @@ h2 span{padding:.15rem .65rem;border-radius:2rem;background:var(--bupd);font-siz
 .note{margin:.2rem .25rem .8rem;font-size:.92rem;color:var(--mute);max-width:56ch}
 .card{background:var(--panel);border:1px solid var(--bd);border-radius:1rem;overflow:hidden;box-shadow:0 .5rem 1.5rem rgba(0,0,0,.35)}
 table{width:100%;border-collapse:collapse;table-layout:fixed;font-variant-numeric:tabular-nums}
-.c-rk{width:3.2rem}.c-n{width:2.8rem}.c-s{width:.68rem}
+.c-rk{width:3.2rem}.c-n{width:2.8rem}.c-s{width:.65rem}
 th{background:var(--panel2);color:var(--mute);font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:center;padding:.7rem 0;border-bottom:1px solid var(--bd)}
-td{text-align:center;vertical-align:middle;padding:.75rem 0;font-size:.9rem;border-bottom:1px solid var(--line)}
+td{text-align:center;vertical-align:middle;padding:.75rem 0;font-size:.875rem;border-bottom:1px solid var(--line)}
 tr:last-child td{border-bottom:0}
 th:first-child,td.rk{text-align:left;padding-left:calc(.8rem + .22rem)}  /* .22rem = the blue bar */
 .tm{text-align:left;padding-left:.25rem}
