@@ -116,23 +116,26 @@ h2 span{padding:.15rem .65rem;border-radius:2rem;background:var(--bupd);font-siz
 table{width:100%;border-collapse:collapse;table-layout:fixed;font-variant-numeric:tabular-nums}
 .c-rk{width:3.5rem}.c-n{width:3rem}.c-s{width:.58rem}
 th{background:var(--panel2);color:var(--mute);font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:center;padding:.7rem 0;border-bottom:1px solid var(--bd)}
-th.tm{text-align:left;padding-left:.25rem}
-td{text-align:center;padding:.75rem 0;font-size:.9rem;border-bottom:1px solid var(--line)}
-tr:last-child td{border-bottom:0}
-td:first-child,th:first-child{text-align:left;padding-left:calc(.8rem + .22rem)}  /* .22rem = the blue bar */
+td{text-align:center;padding:0;font-size:.9rem}
+td.rk,.b td{border-bottom:1px solid var(--line)}
+tr:last-child td,tr:nth-last-child(2) td.rk{border-bottom:0}
+th:first-child,td.rk{text-align:left;padding-left:calc(.8rem + .22rem)}  /* .22rem = the blue bar */
+td.rk{padding-top:.75rem;padding-bottom:.75rem;vertical-align:middle}
+.nm{text-align:left;padding:.75rem .5rem .1rem .25rem}
+.nm b{display:block;font-size:1rem;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.b td{padding:0 0 .75rem;vertical-align:baseline;line-height:1.4}
+.b td.sb{text-align:left;padding-left:.25rem;font-size:.82rem;color:var(--mute);line-height:1.3;padding-top:.1rem}
 .mv{width:2.1rem;text-align:center}
 .dot{display:inline-block;width:.6rem;height:.6rem;margin-left:.45rem;border-radius:50%;background:var(--gold);box-shadow:0 0 0 .18rem rgba(255,200,61,.25)}
 .key{font-weight:800}
 .bd{display:inline-block;min-width:2.1rem;padding:.2rem .35rem;border-radius:.6rem;background:var(--bd);font-weight:700;font-size:1rem;line-height:1.2}
 .b-up,.up .bd{background:var(--bup)} .b-out,.out .bd{background:var(--bout)}
 .up{background:linear-gradient(90deg,rgba(37,99,214,.16),transparent 70%)}
-.up td:first-child{box-shadow:inset .22rem 0 0 var(--bup)}
+.up td.rk{box-shadow:inset .22rem 0 0 var(--bup)}
 .mv{display:block;margin-top:.15rem;font-size:.75rem;font-style:normal;font-weight:700;color:var(--mute)}
 .mv.u{color:var(--up)} .mv.d{color:var(--down)}
-.tm{text-align:left;padding-left:.25rem}
-.tm b{display:block;font-size:1rem;font-weight:650;overflow-wrap:anywhere}
-.tm small{display:block;font-size:.82rem;color:var(--mute)}
-.out .tm b{color:var(--mute)}
+th.tm{text-align:left;padding-left:.25rem}
+.out .nm b{color:var(--mute)}
 .legend{margin-top:2rem;padding:1rem 1.1rem;background:var(--panel);border:1px solid var(--bd);border-radius:1rem;font-size:.92rem;color:var(--mute)}
 .legend p{margin:.45rem 0}
 .legend b{color:var(--fg)}
@@ -141,7 +144,7 @@ td:first-child,th:first-child{text-align:left;padding-left:calc(.8rem + .22rem)}
 .src{margin:.3rem .25rem 0;font-size:.85rem;color:var(--mute)}
 .legend+.src{margin-top:1rem}
 @media(max-width:26rem){.in{padding-left:.5rem;padding-right:.5rem}}
-@media(min-width:40rem){.in{padding:0 1rem 4rem}h1{font-size:3rem}td{padding:.9rem 0}.c-rk{width:4rem}.c-n{width:4.2rem}.c-s{width:.8rem}}
+@media(min-width:40rem){.in{padding:0 1rem 4rem}h1{font-size:3rem}.c-rk{width:4rem}.c-n{width:4.2rem}.c-s{width:.8rem}}
 """
 
 def arrow(m):
@@ -173,9 +176,10 @@ def group(teams):
             sub = f'{t["pool"]}, nr. {t["place"]} (regnes som nr. {ep})'
         else:
             sub = f'{t["pool"]}, nr. {t["place"]}'
-        rows.append(
-            f'<tr class="{cls}"><td><span class="bd">{t["rank"]}</span>{arrow(t.get("move"))}</td>'
-            f'<td class="tm"><b>{html.escape(t["team"])}{dot}</b><small>{sub}</small></td>'
+        rows.append(  # line 1: rank and the full team name; line 2: pool info and the numbers
+            f'<tr class="{cls}"><td class="rk" rowspan="2"><span class="bd">{t["rank"]}</span>{arrow(t.get("move"))}</td>'
+            f'<td class="nm" colspan="6"><b>{html.escape(t["team"])}{dot}</b></td></tr>'
+            f'<tr class="{cls} b"><td class="sb">{sub}</td>'
             f'<td>{t["played"]}</td><td>{t["points"]}</td>'
             f'<td class="key">{num(t["ppm"])}</td><td class="key">{num(t["gdpm"], sign=True)}</td><td></td></tr>'
         )
