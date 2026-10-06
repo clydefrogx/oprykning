@@ -91,7 +91,7 @@ def apply_history(teams):
 
 
 CSS = """
-:root{color-scheme:dark;--bg:#070d13;--panel:#0c1a26;--chip:#14232f;--accent:#e0243f;--line:#14222e;--hd:#0e1a24;--fg:#fff;--mute:#8b99a6;--up:#3ddc84;--down:#ff5a65;--bd:#1c2a37;--bup:#1d4ea8;--bout:#a3281f;--blue:#6b9bff}
+:root{color-scheme:dark;--bg:#070d13;--panel:#0c1a26;--line:#14222e;--hd:#0e1a24;--fg:#fff;--mute:#8b99a6;--up:#3ddc84;--down:#ff5a65;--bd:#1c2a37;--bup:#1d4ea8;--bout:#a3281f;--blue:#6b9bff}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 .in{max-width:44rem;margin:0 auto;padding-bottom:3rem}
@@ -99,9 +99,6 @@ body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.4 system-ui,-appl
 .kick{margin:0 0 .35rem;font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
 h1{font-size:2rem;line-height:1.1;font-weight:800;margin:0}
 .sub{margin:.5rem 0 0;color:var(--mute);font-size:.9rem;max-width:52ch}
-.chips{display:flex;gap:.5rem;padding:1rem 1rem .5rem}
-.chip{font:inherit;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--fg);background:var(--chip);border:0;border-radius:.6rem;padding:.65rem 1.1rem;cursor:pointer}
-.chip.on{background:var(--accent)}
 h2{margin:1.5rem 1rem .15rem;font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
 .note{margin:.15rem 1rem .6rem;font-size:.8rem;color:var(--mute);max-width:56ch}
 table{width:100%;border-collapse:collapse;table-layout:fixed;font-variant-numeric:tabular-nums}
@@ -119,15 +116,8 @@ td{text-align:center;padding:.7rem 0;font-size:1rem;border-bottom:1px solid var(
 .tm small{display:block;font-size:.72rem;color:var(--mute)}
 .out .tm b{color:var(--mute)}
 .line td{text-align:left;padding:.35rem 1rem;background:var(--hd);color:var(--blue);font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-bottom:0}
-body:not([data-view=maal]) .g{display:none}
-body[data-view=maal] .p{display:none}
 .foot{margin:1.5rem 1rem 0}
 """
-
-JS = ("document.querySelectorAll('.chip').forEach(function(b){b.onclick=function(){"
-      "document.body.dataset.view=b.dataset.v;"
-      "document.querySelectorAll('.chip').forEach(function(c){c.classList.toggle('on',c===b)})}})")
-
 
 def arrow(m):
     """Small arrow under the rank number: up, down or unchanged."""
@@ -144,8 +134,7 @@ def arrow(m):
 def group(teams):
     """One standings table. Classes p and g switch between the points and the goals columns."""
     head = ('<tr><th>#</th><th class="tm">Hold</th><th title="Kampe">K</th>'
-            '<th class="p" title="Point">P</th><th class="p key" title="Point pr. kamp">P/K</th>'
-            '<th class="g" title="Målforskel pr. kamp">MF/K</th><th class="g" title="Scorede mål pr. kamp">M/K</th></tr>')
+            '<th title="Point">P</th><th class="key" title="Point pr. kamp">P/K</th></tr>')
     rows = []
     for t in teams:
         cls = "up" if t["promotes"] else ("out" if not t["eligible"] else "")
@@ -159,8 +148,7 @@ def group(teams):
         rows.append(
             f'<tr class="{cls}"><td><span class="bd">{t["rank"]}</span>{arrow(t.get("move"))}</td>'
             f'<td class="tm"><b>{html.escape(t["team"])}</b><small>{sub}</small></td>'
-            f'<td>{t["played"]}</td><td class="p">{t["points"]}</td><td class="p key">{num(t["ppm"])}</td>'
-            f'<td class="g">{num(t["gdpm"], True)}</td><td class="g">{num(t["gfpm"])}</td></tr>'
+            f'<td>{t["played"]}</td><td>{t["points"]}</td><td class="key">{num(t["ppm"])}</td></tr>'
         )
         if t["rank"] == PROMOTE:  # the promotion line
             rows.append('<tr class="line"><td colspan="5">Grænse for oprykning</td></tr>')
@@ -184,14 +172,13 @@ def render(teams):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0c1a26">
 <title>Hvem rykker op? - Herre Senior 4 7:7</title>
-<style>{CSS}</style></head><body data-view="samlet"><div class="in">
+<style>{CSS}</style></head><body><div class="in">
 <div class="hero"><p class="kick">Herre Senior 4 7:7 Efterår</p><h1>Hvem rykker op?</h1>
 <p class="sub">De {PROMOTE} bedste oprykningsberettigede hold på tværs af {len(POOLS)} puljer rykker op. Opdateret {now}.</p></div>
-<div class="chips"><button class="chip on" data-v="samlet" type="button">Samlet</button><button class="chip" data-v="maal" type="button">Mål</button></div>
 {body}
-<p class="note foot"><b>K</b> kampe, <b>P</b> point, <b>P/K</b> point pr. kamp, <b>MF/K</b> målforskel pr. kamp, <b>M/K</b> scorede mål pr. kamp. Blåt rangnummer: rykker op. Rødt: kan ikke rykke op på grund af udeblivelse. ▲▼ viser flytning i placering siden stillingen sidst ændrede sig.</p>
+<p class="note foot"><b>K</b> kampe, <b>P</b> point, <b>P/K</b> point pr. kamp. Blåt rangnummer: rykker op. Rødt: kan ikke rykke op på grund af udeblivelse. ▲▼ viser flytning i placering siden stillingen sidst ændrede sig.</p>
 <p class="note">Kilde: dbu.dk. Næste hold i puljen rykker en plads op, når et hold har udeblivelse.</p>
-</div><script>{JS}</script></body></html>"""
+</div></body></html>"""
 
 
 def main():
