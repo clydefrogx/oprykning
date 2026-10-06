@@ -1,0 +1,29 @@
+# Save as .github/workflows/update.yml in your repository
+name: Update dashboard
+
+on:
+  schedule:
+    - cron: "0 6,12,18 * * *"   # three times a day (UTC)
+  workflow_dispatch:             # lets you start it by hand from the Actions tab
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests beautifulsoup4
+      - run: python build.py
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - uses: actions/deploy-pages@v4
