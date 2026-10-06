@@ -114,13 +114,14 @@ h2 span{padding:.15rem .65rem;border-radius:2rem;background:var(--bupd);font-siz
 .note{margin:.2rem .25rem .8rem;font-size:.92rem;color:var(--mute);max-width:56ch}
 .card{background:var(--panel);border:1px solid var(--bd);border-radius:1rem;overflow:hidden;box-shadow:0 .5rem 1.5rem rgba(0,0,0,.35)}
 table{width:100%;border-collapse:collapse;table-layout:fixed;font-variant-numeric:tabular-nums}
-.c-rk{width:3rem}.c-n{width:2.2rem}.c-m{width:3.4rem}.c-l{width:3.9rem}
+.c-rk{width:3.5rem}.c-n{width:2rem}.c-m{width:3.2rem}.c-l{width:3.9rem}
 th{background:var(--panel2);color:var(--mute);font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:center;padding:.7rem 0;border-bottom:1px solid var(--bd)}
 th.tm{text-align:left;padding-left:.25rem}
 td{text-align:center;padding:.75rem 0;font-size:.95rem;border-bottom:1px solid var(--line)}
 tr:last-child td{border-bottom:0}
-td:last-child,th:last-child{padding-right:.6rem}
-td:first-child{padding-left:.3rem}
+td:first-child,th:first-child{text-align:left;padding-left:calc(.8rem + .22rem)}  /* .22rem = the blue bar */
+td:last-child,th:last-child{text-align:right;padding-right:.8rem}
+.mv{width:2.1rem;text-align:center}
 .dot{display:inline-block;width:.6rem;height:.6rem;margin-left:.45rem;border-radius:50%;background:var(--gold);box-shadow:0 0 0 .18rem rgba(255,200,61,.25)}
 .key{font-weight:800}
 .bd{display:inline-block;min-width:2.1rem;padding:.2rem .35rem;border-radius:.6rem;background:var(--bd);font-weight:700;font-size:1rem;line-height:1.2}
