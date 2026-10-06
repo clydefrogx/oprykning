@@ -218,6 +218,7 @@ def render(teams):
 <p><b>MF/K</b> målgennemsnit (målforskel pr. registreret kamp)</p>
 <p><span class="sw b-up"></span>Rykker op</p>
 <p><span class="sw b-out"></span>Kan ikke rykke op (udeblivelse)</p>
+<p><b>(nr. x)</b> placering når hold med udeblivelse ikke tælles med</p>
 <p><b>▲▼</b> flytning i placering siden stillingen sidst ændrede sig</p>
 <p><span class="dot"></span>{html.escape(MY_TEAM)} er dit hold</p>
 <p>Næste hold i puljen rykker en plads op, når et hold er udeblevet.</p>
