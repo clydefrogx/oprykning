@@ -74,9 +74,6 @@ def num(x, sign=False):
     return (f"{x:+.2f}" if sign else f"{x:.2f}").replace(".", ",")
 
 
-COLS = [("K", "Kampe"), ("P", "Point"), ("P/K", "Point pr. kamp"), ("MF/K", "Målforskel pr. kamp"), ("M/K", "Mål pr. kamp")]
-
-
 HIST = pathlib.Path("history.json")  # remembers the last two rankings, so arrows can be shown
 
 
@@ -123,15 +120,13 @@ th:first-child,td.rk{text-align:left;padding-left:calc(.8rem + .22rem)}  /* .22r
 .tm{text-align:left;padding-left:.25rem}
 .tm b{display:block;font-size:.875rem;font-weight:650;line-height:1.3}
 .tm small{display:block;font-size:.8rem;color:var(--mute)}
-.mv{width:1.9rem;text-align:center}
 .dot{display:inline-block;width:.6rem;height:.6rem;margin-left:.45rem;border-radius:50%;background:var(--gold);box-shadow:0 0 0 .18rem rgba(255,200,61,.25)}
 .bd{display:inline-block;min-width:1.9rem;padding:.15rem .3rem;border-radius:.6rem;background:var(--bd);font-weight:700;font-size:.95rem;line-height:1.2;text-align:center}
 .b-up,.up .bd{background:var(--bup)} .b-out,.out .bd{background:var(--bout)}
 .up{background:linear-gradient(90deg,rgba(37,99,214,.16),transparent 70%)}
 .up td.rk{box-shadow:inset .22rem 0 0 var(--bup)}
-.mv{display:block;margin-top:.15rem;font-size:.75rem;font-style:normal;font-weight:700;color:var(--mute)}
+.mv{display:block;width:1.9rem;margin-top:.15rem;text-align:center;font-size:.75rem;font-style:normal;font-weight:700;color:var(--mute)}
 .mv.u{color:var(--up)} .mv.d{color:var(--down)}
-th.tm{text-align:left;padding-left:.25rem}
 .out .tm b{color:var(--mute)}
 .legend{margin-top:2rem;padding:1rem 1.1rem;background:var(--panel);border:1px solid var(--bd);border-radius:1rem;font-size:.92rem;color:var(--mute)}
 .legend p{margin:.45rem 0}
@@ -157,11 +152,11 @@ def arrow(m):
 
 
 def group(teams):
-    """One standings table. Classes p and g switch between the points and the goals columns."""
+    """One standings card: a header row and one row per team."""
     head = ('<tr><th>#</th><th class="tm">Hold</th><th title="Kampe">K</th>'
             '<th title="Point">P</th>'
-            '<th class="key" title="Pointgennemsnit: point pr. kamp">P/K</th>'
-            '<th class="key" title="Målgennemsnit: målforskel pr. registreret kamp">MF/K</th><th></th></tr>')
+            '<th title="Pointgennemsnit: point pr. kamp">P/K</th>'
+            '<th title="Målgennemsnit: målforskel pr. registreret kamp">MF/K</th><th></th></tr>')
     rows = []
     for t in teams:
         cls = "up" if t["promotes"] else ("out" if not t["eligible"] else "")
@@ -177,7 +172,7 @@ def group(teams):
             f'<tr class="{cls}"><td class="rk"><span class="bd">{t["rank"]}</span>{arrow(t.get("move"))}</td>'
             f'<td class="tm"><b>{html.escape(t["team"])}{dot}</b><small>{sub}</small></td>'
             f'<td>{t["played"]}</td><td>{t["points"]}</td>'
-            f'<td class="key">{num(t["ppm"])}</td><td class="key">{num(t["gdpm"], sign=True)}</td><td></td></tr>'
+            f'<td>{num(t["ppm"])}</td><td>{num(t["gdpm"], sign=True)}</td><td></td></tr>'
         )
     cols = '<col class="c-rk"><col>' + '<col class="c-n">' * 2 + '<col class="c-n">' * 2 + '<col class="c-s">'
     return f'<div class="card"><table><colgroup>{cols}</colgroup>{head}{"".join(rows)}</table></div>'
