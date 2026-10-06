@@ -109,10 +109,10 @@ h1{font-size:2rem;line-height:1.1;font-weight:800;margin:0}
 h2{margin:1.5rem 1rem .15rem;font-size:.9rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
 .note{margin:.15rem 1rem .6rem;font-size:.9rem;color:var(--mute);max-width:56ch}
 table{width:100%;border-collapse:collapse;table-layout:fixed;font-variant-numeric:tabular-nums}
-.c-rk{width:3.3rem}.c-n{width:2.6rem}.c-m{width:3.8rem}
+.c-rk{width:3.1rem}.c-n{width:2.3rem}.c-m{width:3.3rem}
 th{background:var(--hd);color:var(--mute);font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:center;padding:.65rem 0}
 th.tm{text-align:left;padding-left:.25rem}
-td{text-align:center;padding:.75rem 0;font-size:1.05rem;border-bottom:1px solid var(--line)}
+td{text-align:center;padding:.75rem 0;font-size:1rem;border-bottom:1px solid var(--line)}
 .dot{display:inline-block;width:.6rem;height:.6rem;margin-left:.4rem;border-radius:50%;background:var(--gold)}
 .key{font-weight:800}
 .bd{display:inline-block;min-width:2rem;padding:.2rem .35rem;border-radius:.5rem;background:var(--bd);font-weight:700;font-size:1rem;line-height:1.2}
@@ -143,6 +143,7 @@ def group(teams):
     """One standings table. Classes p and g switch between the points and the goals columns."""
     head = ('<tr><th>#</th><th class="tm">Hold</th><th title="Kampe">K</th>'
             '<th title="Point">P</th>'
+            '<th class="key" title="Pointgennemsnit: point pr. kamp">P/K</th>'
             '<th class="key" title="Målgennemsnit: målforskel pr. registreret kamp">MF/K</th></tr>')
     rows = []
     for t in teams:
@@ -159,11 +160,11 @@ def group(teams):
             f'<tr class="{cls}"><td><span class="bd">{t["rank"]}</span>{arrow(t.get("move"))}</td>'
             f'<td class="tm"><b>{html.escape(t["team"])}{dot}</b><small>{sub}</small></td>'
             f'<td>{t["played"]}</td><td>{t["points"]}</td>'
-            f'<td class="key">{num(t["gdpm"], sign=True)}</td></tr>'
+            f'<td class="key">{num(t["ppm"])}</td><td class="key">{num(t["gdpm"], sign=True)}</td></tr>'
         )
         if t["rank"] == PROMOTE:  # the promotion line
-            rows.append('<tr class="line"><td colspan="5">Grænse for oprykning</td></tr>')
-    cols = '<col class="c-rk"><col>' + '<col class="c-n">' * 2 + '<col class="c-m">'
+            rows.append('<tr class="line"><td colspan="6">Grænse for oprykning</td></tr>')
+    cols = '<col class="c-rk"><col>' + '<col class="c-n">' * 2 + '<col class="c-m">' * 2
     return f'<table><colgroup>{cols}</colgroup>{head}{"".join(rows)}</table>'
 
 
@@ -197,7 +198,7 @@ def render(teams):
 <div class="hero"><p class="kick">Herre Senior 4 7:7 Efterår</p><h1>Hvem rykker op?</h1>
 <p class="sub">De {PROMOTE} bedste oprykningsberettigede hold på tværs af {len(POOLS)} puljer rykker op. Opdateret {now}.</p></div>
 {body}
-<p class="note foot"><b>K</b> kampe, <b>P</b> point, <b>MF/K</b> målgennemsnit (målforskel pr. registreret kamp). {html.escape(MY_TEAM)}<span class="dot"></span>. Blåt rangnummer: rykker op. Rødt: kan ikke rykke op på grund af udeblivelse. ▲▼ viser flytning i placering siden stillingen sidst ændrede sig.</p>
+<p class="note foot"><b>K</b> kampe, <b>P</b> point, <b>P/K</b> pointgennemsnit (point pr. kamp), <b>MF/K</b> målgennemsnit (målforskel pr. registreret kamp). {html.escape(MY_TEAM)}<span class="dot"></span>. Blåt rangnummer: rykker op. Rødt: kan ikke rykke op på grund af udeblivelse. ▲▼ viser flytning i placering siden stillingen sidst ændrede sig.</p>
 <p class="note">Kilde: dbu.dk. Næste hold i puljen rykker en plads op, når et hold har udeblivelse.</p>
 </div></body></html>"""
 

@@ -1,11 +1,14 @@
-# Save as .github/workflows/update.yml in your repository
 name: Update dashboard
 
 on:
   push:
-    branches: [main]             # deploy as soon as changes are merged
+    branches: [main]             # deploy as soon as changes are pushed
   schedule:
-    - cron: "0 6,12,18 * * *"   # three times a day (UTC)
+    # Once a day at 00:00 Danish time. GitHub only understands UTC, and Danish
+    # midnight is 22:00 UTC in summer but 23:00 UTC in winter, so the job is
+    # started at both times and the "gate" step below lets only the right one run.
+    - cron: "0 22 * * *"
+    - cron: "0 23 * * *"
   workflow_dispatch:             # lets you start it by hand from the Actions tab
 
 permissions:
@@ -23,20 +26,37 @@ jobs:
     environment:
       name: github-pages
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Gate (scheduled runs only continue at midnight Danish time)
+        id: gate
+        run: |
+          hour=$(TZ=Europe/Copenhagen date +%H)
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "$hour" != "00" ]; then
+            echo "Danish hour is $hour, not midnight: skipping"
+            echo "go=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.gate.outputs.go == 'true'
+        uses: actions/checkout@v4
+      - if: steps.gate.outputs.go == 'true'
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install requests beautifulsoup4
+      - if: steps.gate.outputs.go == 'true'
+        run: pip install requests beautifulsoup4
       # history.json remembers the previous ranking (for the arrows); a fresh
       # key each run makes the cache save the updated file every time
-      - uses: actions/cache@v4
+      - if: steps.gate.outputs.go == 'true'
+        uses: actions/cache@v4
         with:
           path: history.json
           key: history-${{ github.run_id }}
           restore-keys: history-
-      - run: python build.py
-      - uses: actions/upload-pages-artifact@v3
+      - if: steps.gate.outputs.go == 'true'
+        run: python build.py
+      - if: steps.gate.outputs.go == 'true'
+        uses: actions/upload-pages-artifact@v3
         with:
           path: site
-      - uses: actions/deploy-pages@v4
+      - if: steps.gate.outputs.go == 'true'
+        uses: actions/deploy-pages@v4
