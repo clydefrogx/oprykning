@@ -9,6 +9,7 @@ import html
 import json
 import pathlib
 import re
+import shutil
 import time
 from zoneinfo import ZoneInfo
 
@@ -18,7 +19,11 @@ from bs4 import BeautifulSoup
 # Pool pages P1..P8 have consecutive numbers 496331..496338
 POOLS = {f"P{i}": f"https://www.dbu.dk/resultater/pulje/{496330 + i}/" for i in range(1, 9)}
 PROMOTE = 12  # the 12 best eligible teams move up
-MY_TEAM = "Union 9"  # highlighted in the tables, with a quick link at the top
+MY_TEAM = "Union 9"  # marked with a dot in the tables
+SITE_URL = "https://clydefrogx.github.io/oprykning/"  # share previews need the full address
+ASSETS = pathlib.Path("assets")  # icons, share image and manifest, copied into site/
+TITLE = "Hvem rykker op? - Herre Senior 4 7:7"
+DESC = f"De {PROMOTE} bedste hold på tværs af {len(POOLS)} puljer rykker op i Herre Senior 4 7:7 Efterår."
 
 
 def read_pool(url):
@@ -93,32 +98,32 @@ def apply_history(teams):
 
 
 CSS = """
-:root{color-scheme:dark;--bg:#070d13;--panel:#0c1a26;--line:#14222e;--hd:#0e1a24;--fg:#fff;--mute:#8b99a6;--up:#3ddc84;--down:#ff5a65;--bd:#1c2a37;--bup:#1d4ea8;--bout:#a3281f;--blue:#6b9bff;--gold:#ffc83d}
+:root{color-scheme:dark;--bg:#070d13;--panel:#0c1a26;--line:#14222e;--hd:#0e1a24;--fg:#fff;--mute:#adb9c5;--up:#3ddc84;--down:#ff5a65;--bd:#1c2a37;--bup:#1d4ea8;--bout:#a3281f;--blue:#6b9bff;--gold:#ffc83d}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 .in{max-width:44rem;margin:0 auto;padding-bottom:3rem}
 .hero{background:var(--panel);padding:1.25rem 1rem 1.1rem}
-.kick{margin:0 0 .35rem;font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.kick{margin:0 0 .35rem;font-size:.85rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
 h1{font-size:2rem;line-height:1.1;font-weight:800;margin:0}
-.sub{margin:.5rem 0 0;color:var(--mute);font-size:.9rem;max-width:52ch}
-h2{margin:1.5rem 1rem .15rem;font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
-.note{margin:.15rem 1rem .6rem;font-size:.8rem;color:var(--mute);max-width:56ch}
+.sub{margin:.5rem 0 0;color:var(--mute);font-size:1rem;max-width:52ch}
+h2{margin:1.5rem 1rem .15rem;font-size:.9rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.note{margin:.15rem 1rem .6rem;font-size:.9rem;color:var(--mute);max-width:56ch}
 table{width:100%;border-collapse:collapse;table-layout:fixed;font-variant-numeric:tabular-nums}
-.c-rk{width:3.2rem}.c-n{width:2.9rem}
-th{background:var(--hd);color:var(--mute);font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:center;padding:.65rem 0}
+.c-rk{width:3.3rem}.c-n{width:2.6rem}.c-m{width:3.8rem}
+th{background:var(--hd);color:var(--mute);font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:center;padding:.65rem 0}
 th.tm{text-align:left;padding-left:.25rem}
-td{text-align:center;padding:.7rem 0;font-size:.9rem;border-bottom:1px solid var(--line)}
+td{text-align:center;padding:.75rem 0;font-size:1.05rem;border-bottom:1px solid var(--line)}
 .dot{display:inline-block;width:.6rem;height:.6rem;margin-left:.4rem;border-radius:50%;background:var(--gold)}
 .key{font-weight:800}
-.bd{display:inline-block;min-width:2rem;padding:.2rem .35rem;border-radius:.5rem;background:var(--bd);font-weight:700;font-size:.95rem;line-height:1.2}
+.bd{display:inline-block;min-width:2rem;padding:.2rem .35rem;border-radius:.5rem;background:var(--bd);font-weight:700;font-size:1rem;line-height:1.2}
 .up .bd{background:var(--bup)} .out .bd{background:var(--bout)}
-.mv{display:block;margin-top:.15rem;font-size:.65rem;font-style:normal;font-weight:700;color:var(--mute)}
+.mv{display:block;margin-top:.15rem;font-size:.75rem;font-style:normal;font-weight:700;color:var(--mute)}
 .mv.u{color:var(--up)} .mv.d{color:var(--down)}
 .tm{text-align:left;padding-left:.25rem}
 .tm b{display:block;font-weight:600;overflow-wrap:anywhere}
-.tm small{display:block;font-size:.72rem;color:var(--mute)}
+.tm small{display:block;font-size:.82rem;color:var(--mute)}
 .out .tm b{color:var(--mute)}
-.line td{text-align:left;padding:.35rem 1rem;background:var(--hd);color:var(--blue);font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-bottom:0}
+.line td{text-align:left;padding:.35rem 1rem;background:var(--hd);color:var(--blue);font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-bottom:0}
 .foot{margin:1.5rem 1rem 0}
 """
 
@@ -158,7 +163,7 @@ def group(teams):
         )
         if t["rank"] == PROMOTE:  # the promotion line
             rows.append('<tr class="line"><td colspan="5">Grænse for oprykning</td></tr>')
-    cols = '<col class="c-rk"><col>' + '<col class="c-n">' * 3
+    cols = '<col class="c-rk"><col>' + '<col class="c-n">' * 2 + '<col class="c-m">'
     return f'<table><colgroup>{cols}</colgroup>{head}{"".join(rows)}</table>'
 
 
@@ -178,7 +183,16 @@ def render(teams):
 <html lang="da"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0c1a26">
-<title>Hvem rykker op? - Herre Senior 4 7:7</title>
+<title>{TITLE}</title>
+<meta name="description" content="{DESC}">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta property="og:type" content="website"><meta property="og:locale" content="da_DK">
+<meta property="og:title" content="{TITLE}"><meta property="og:description" content="{DESC}">
+<meta property="og:url" content="{SITE_URL}"><meta property="og:image" content="{SITE_URL}og.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <style>{CSS}</style></head><body><div class="in">
 <div class="hero"><p class="kick">Herre Senior 4 7:7 Efterår</p><h1>Hvem rykker op?</h1>
 <p class="sub">De {PROMOTE} bedste oprykningsberettigede hold på tværs af {len(POOLS)} puljer rykker op. Opdateret {now}.</p></div>
@@ -195,6 +209,7 @@ def main():
         time.sleep(2)  # be gentle with DBU's server
     out = pathlib.Path("site")
     out.mkdir(exist_ok=True)
+    shutil.copytree(ASSETS, out, dirs_exist_ok=True)  # icons, share image, manifest
     teams = rank_all(pools)
     apply_history(teams)
     (out / "index.html").write_text(render(teams), encoding="utf-8")
