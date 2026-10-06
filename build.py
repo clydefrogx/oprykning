@@ -121,7 +121,6 @@ td{text-align:center;padding:.75rem 0;font-size:1rem;border-bottom:1px solid var
 tr:last-child td{border-bottom:0}
 .dot{display:inline-block;width:.6rem;height:.6rem;margin-left:.45rem;border-radius:50%;background:var(--gold);box-shadow:0 0 0 .18rem rgba(255,200,61,.25)}
 .key{font-weight:800}
-.pos{color:var(--up)} .neg{color:var(--down)}
 .bd{display:inline-block;min-width:2.1rem;padding:.2rem .35rem;border-radius:.6rem;background:var(--bd);font-weight:700;font-size:1rem;line-height:1.2}
 .b-up,.up .bd{background:var(--bup)} .b-out,.out .bd{background:var(--bout)}
 .up{background:linear-gradient(90deg,rgba(37,99,214,.16),transparent 70%)}
@@ -132,7 +131,6 @@ tr:last-child td{border-bottom:0}
 .tm b{display:block;font-weight:650;overflow-wrap:anywhere}
 .tm small{display:block;font-size:.82rem;color:var(--mute)}
 .out .tm b{color:var(--mute)}
-.line td{text-align:center;padding:.4rem;background:rgba(37,99,214,.14);color:var(--blue);font-size:.78rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;border-top:1px dashed rgba(122,165,255,.5);border-bottom:1px dashed rgba(122,165,255,.5)}
 .legend{margin-top:2rem;padding:1rem 1.1rem;background:var(--panel);border:1px solid var(--bd);border-radius:1rem;font-size:.92rem;color:var(--mute)}
 .legend p{margin:.45rem 0}
 .legend b{color:var(--fg)}
@@ -153,12 +151,6 @@ def arrow(m):
     if m > 0:
         return f'<i class="mv u" title="Op {m} {word}">▲{m}</i>'
     return f'<i class="mv d" title="Ned {-m} {word}">▼{-m}</i>'
-
-
-def sign_class(x):
-    """Colour class for a goal difference: green above zero, red below (as shown, rounded to 2 decimals)."""
-    x = round(x, 2)
-    return "pos" if x > 0 else ("neg" if x < 0 else "")
 
 
 def group(teams):
@@ -182,10 +174,8 @@ def group(teams):
             f'<tr class="{cls}"><td><span class="bd">{t["rank"]}</span>{arrow(t.get("move"))}</td>'
             f'<td class="tm"><b>{html.escape(t["team"])}{dot}</b><small>{sub}</small></td>'
             f'<td>{t["played"]}</td><td>{t["points"]}</td>'
-            f'<td class="key">{num(t["ppm"])}</td><td class="key {sign_class(t["gdpm"])}">{num(t["gdpm"], sign=True)}</td></tr>'
+            f'<td class="key">{num(t["ppm"])}</td><td class="key">{num(t["gdpm"], sign=True)}</td></tr>'
         )
-        if t["rank"] == PROMOTE:  # the promotion line
-            rows.append('<tr class="line"><td colspan="6">Grænse for oprykning</td></tr>')
     cols = '<col class="c-rk"><col>' + '<col class="c-n">' * 2 + '<col class="c-m">' * 2
     return f'<div class="card"><table><colgroup>{cols}</colgroup>{head}{"".join(rows)}</table></div>'
 
@@ -193,11 +183,13 @@ def group(teams):
 def render(teams):
     """Return the finished HTML page as text."""
     winners = [t for t in teams if t["elig_place"] == 1]
-    rest = [t for t in teams if t["elig_place"] != 1]  # the 2nds first, then everyone else
+    seconds = [t for t in teams if t["elig_place"] != 1 and t["rank"] <= PROMOTE]  # the best 2nds, who move up
+    rest = [t for t in teams if t["elig_place"] != 1 and t["rank"] > PROMOTE]  # everyone below the line, no-shows last
     slots = PROMOTE - len(winners)  # places left for the 2nds
     sections = [
         ("Puljevindere", f"{len(winners)} pladser", "Nr. 1 i hver pulje rykker op.", winners),
-        ("De bedste 2'ere", f"{slots} pladser", f"De {slots} bedste 2'ere rykker op. Under linjen står de øvrige hold, og hold med udeblivelse står nederst.", rest),
+        ("De bedste 2'ere", f"{slots} pladser", f"De {slots} bedste 2'ere rykker op.", seconds),
+        ("Resten", f"{len(rest)} hold", "Disse hold rykker ikke op. Hold med udeblivelse står nederst.", rest),
     ]
     body = "".join(f'<h2>{h}<span>{b}</span></h2><p class="note">{n}</p>{group(ts)}' for h, b, n, ts in sections if ts)
     # Danish time (handles summer/winter time); the GitHub server itself runs on UTC
