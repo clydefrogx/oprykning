@@ -125,7 +125,6 @@ th:first-child,td.rk{text-align:left;padding-left:calc(.8rem + .22rem)}  /* .22r
 .tm small{display:block;font-size:.8rem;color:var(--mute)}
 .mv{width:1.9rem;text-align:center}
 .dot{display:inline-block;width:.6rem;height:.6rem;margin-left:.45rem;border-radius:50%;background:var(--gold);box-shadow:0 0 0 .18rem rgba(255,200,61,.25)}
-.key{font-weight:800}
 .bd{display:inline-block;min-width:1.9rem;padding:.15rem .3rem;border-radius:.6rem;background:var(--bd);font-weight:700;font-size:.95rem;line-height:1.2;text-align:center}
 .b-up,.up .bd{background:var(--bup)} .b-out,.out .bd{background:var(--bout)}
 .up{background:linear-gradient(90deg,rgba(37,99,214,.16),transparent 70%)}
