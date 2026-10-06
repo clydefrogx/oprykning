@@ -114,13 +114,12 @@ h2 span{padding:.15rem .65rem;border-radius:2rem;background:var(--bupd);font-siz
 .note{margin:.2rem .25rem .8rem;font-size:.92rem;color:var(--mute);max-width:56ch}
 .card{background:var(--panel);border:1px solid var(--bd);border-radius:1rem;overflow:hidden;box-shadow:0 .5rem 1.5rem rgba(0,0,0,.35)}
 table{width:100%;border-collapse:collapse;table-layout:fixed;font-variant-numeric:tabular-nums}
-.c-rk{width:3.5rem}.c-n{width:2rem}.c-m{width:3.2rem}.c-l{width:3.9rem}
+.c-rk{width:3.5rem}.c-n{width:3rem}.c-s{width:.58rem}
 th{background:var(--panel2);color:var(--mute);font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:center;padding:.7rem 0;border-bottom:1px solid var(--bd)}
 th.tm{text-align:left;padding-left:.25rem}
-td{text-align:center;padding:.75rem 0;font-size:.95rem;border-bottom:1px solid var(--line)}
+td{text-align:center;padding:.75rem 0;font-size:.9rem;border-bottom:1px solid var(--line)}
 tr:last-child td{border-bottom:0}
 td:first-child,th:first-child{text-align:left;padding-left:calc(.8rem + .22rem)}  /* .22rem = the blue bar */
-td:last-child,th:last-child{text-align:right;padding-right:.8rem}
 .mv{width:2.1rem;text-align:center}
 .dot{display:inline-block;width:.6rem;height:.6rem;margin-left:.45rem;border-radius:50%;background:var(--gold);box-shadow:0 0 0 .18rem rgba(255,200,61,.25)}
 .key{font-weight:800}
@@ -142,7 +141,7 @@ td:last-child,th:last-child{text-align:right;padding-right:.8rem}
 .src{margin:.3rem .25rem 0;font-size:.85rem;color:var(--mute)}
 .legend+.src{margin-top:1rem}
 @media(max-width:26rem){.in{padding-left:.5rem;padding-right:.5rem}}
-@media(min-width:40rem){.in{padding:0 1rem 4rem}h1{font-size:3rem}td{padding:.9rem 0}.c-rk{width:4rem}.c-n{width:3.5rem}.c-m{width:4.5rem}.c-l{width:5rem}}
+@media(min-width:40rem){.in{padding:0 1rem 4rem}h1{font-size:3rem}td{padding:.9rem 0}.c-rk{width:4rem}.c-n{width:4.2rem}.c-s{width:.8rem}}
 """
 
 def arrow(m):
@@ -162,7 +161,7 @@ def group(teams):
     head = ('<tr><th>#</th><th class="tm">Hold</th><th title="Kampe">K</th>'
             '<th title="Point">P</th>'
             '<th class="key" title="Pointgennemsnit: point pr. kamp">P/K</th>'
-            '<th class="key" title="Målgennemsnit: målforskel pr. registreret kamp">MF/K</th></tr>')
+            '<th class="key" title="Målgennemsnit: målforskel pr. registreret kamp">MF/K</th><th></th></tr>')
     rows = []
     for t in teams:
         cls = "up" if t["promotes"] else ("out" if not t["eligible"] else "")
@@ -178,9 +177,9 @@ def group(teams):
             f'<tr class="{cls}"><td><span class="bd">{t["rank"]}</span>{arrow(t.get("move"))}</td>'
             f'<td class="tm"><b>{html.escape(t["team"])}{dot}</b><small>{sub}</small></td>'
             f'<td>{t["played"]}</td><td>{t["points"]}</td>'
-            f'<td class="key">{num(t["ppm"])}</td><td class="key">{num(t["gdpm"], sign=True)}</td></tr>'
+            f'<td class="key">{num(t["ppm"])}</td><td class="key">{num(t["gdpm"], sign=True)}</td><td></td></tr>'
         )
-    cols = '<col class="c-rk"><col>' + '<col class="c-n">' * 2 + '<col class="c-m"><col class="c-l">'
+    cols = '<col class="c-rk"><col>' + '<col class="c-n">' * 2 + '<col class="c-n">' * 2 + '<col class="c-s">'
     return f'<div class="card"><table><colgroup>{cols}</colgroup>{head}{"".join(rows)}</table></div>'
 
 
