@@ -165,7 +165,7 @@ def group(teams):
         if not t["eligible"]:
             sub = f'{t["pool"]}, nr. {t["place"]}, udeblivelse'
         elif ep != t["place"]:
-            sub = f'{t["pool"]}, nr. {t["place"]} (regnes som nr. {ep})'
+            sub = f'{t["pool"]}, nr. {t["place"]} (nr. {ep})'
         else:
             sub = f'{t["pool"]}, nr. {t["place"]}'
         rows.append(  # one row per team, everything centred vertically
