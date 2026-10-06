@@ -10,6 +10,7 @@ import json
 import pathlib
 import re
 import time
+from zoneinfo import ZoneInfo
 
 import requests
 from bs4 import BeautifulSoup
@@ -17,6 +18,7 @@ from bs4 import BeautifulSoup
 # Pool pages P1..P8 have consecutive numbers 496331..496338
 POOLS = {f"P{i}": f"https://www.dbu.dk/resultater/pulje/{496330 + i}/" for i in range(1, 9)}
 PROMOTE = 12  # the 12 best eligible teams move up
+MY_TEAM = "Union 9"  # highlighted in the tables, with a quick link at the top
 
 
 def read_pool(url):
@@ -91,7 +93,7 @@ def apply_history(teams):
 
 
 CSS = """
-:root{color-scheme:dark;--bg:#070d13;--panel:#0c1a26;--line:#14222e;--hd:#0e1a24;--fg:#fff;--mute:#8b99a6;--up:#3ddc84;--down:#ff5a65;--bd:#1c2a37;--bup:#1d4ea8;--bout:#a3281f;--blue:#6b9bff}
+:root{color-scheme:dark;--bg:#070d13;--panel:#0c1a26;--line:#14222e;--hd:#0e1a24;--fg:#fff;--mute:#8b99a6;--up:#3ddc84;--down:#ff5a65;--bd:#1c2a37;--bup:#1d4ea8;--bout:#a3281f;--blue:#6b9bff;--gold:#ffc83d}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 .in{max-width:44rem;margin:0 auto;padding-bottom:3rem}
@@ -102,10 +104,13 @@ h1{font-size:2rem;line-height:1.1;font-weight:800;margin:0}
 h2{margin:1.5rem 1rem .15rem;font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
 .note{margin:.15rem 1rem .6rem;font-size:.8rem;color:var(--mute);max-width:56ch}
 table{width:100%;border-collapse:collapse;table-layout:fixed;font-variant-numeric:tabular-nums}
-.c-rk{width:3.4rem}.c-n{width:3.4rem}
+.c-rk{width:3.2rem}.c-n{width:2.9rem}
 th{background:var(--hd);color:var(--mute);font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:center;padding:.65rem 0}
 th.tm{text-align:left;padding-left:.25rem}
-td{text-align:center;padding:.7rem 0;font-size:1rem;border-bottom:1px solid var(--line)}
+td{text-align:center;padding:.7rem 0;font-size:.9rem;border-bottom:1px solid var(--line)}
+.me td{background:#2a2410}.me td:first-child{box-shadow:inset .25rem 0 0 var(--gold)}
+.me .tm b{color:var(--gold)}
+.mine{display:inline-block;margin-top:.75rem;padding:.4rem .8rem;border-radius:.5rem;background:var(--gold);color:#1a1400;font-size:.85rem;font-weight:700;text-decoration:none}
 .key{font-weight:800}
 .bd{display:inline-block;min-width:2rem;padding:.2rem .35rem;border-radius:.5rem;background:var(--bd);font-weight:700;font-size:.95rem;line-height:1.2}
 .up .bd{background:var(--bup)} .out .bd{background:var(--bout)}
@@ -134,10 +139,14 @@ def arrow(m):
 def group(teams):
     """One standings table. Classes p and g switch between the points and the goals columns."""
     head = ('<tr><th>#</th><th class="tm">Hold</th><th title="Kampe">K</th>'
-            '<th title="Point">P</th><th class="key" title="Point pr. kamp">P/K</th></tr>')
+            '<th title="Point">P</th><th class="key" title="Point pr. kamp">P/K</th>'
+            '<th title="Målforskel pr. kamp">MF/K</th><th title="Mål pr. kamp">M/K</th></tr>')
     rows = []
     for t in teams:
         cls = "up" if t["promotes"] else ("out" if not t["eligible"] else "")
+        mine = t["team"] == MY_TEAM
+        if mine:
+            cls += " me"
         ep = t["elig_place"]
         if not t["eligible"]:
             sub = f'{t["pool"]}, nr. {t["place"]}, udeblivelse'
@@ -146,13 +155,14 @@ def group(teams):
         else:
             sub = f'{t["pool"]}, nr. {t["place"]}'
         rows.append(
-            f'<tr class="{cls}"><td><span class="bd">{t["rank"]}</span>{arrow(t.get("move"))}</td>'
+            f'<tr class="{cls}"{" id=me" if mine else ""}><td><span class="bd">{t["rank"]}</span>{arrow(t.get("move"))}</td>'
             f'<td class="tm"><b>{html.escape(t["team"])}</b><small>{sub}</small></td>'
-            f'<td>{t["played"]}</td><td>{t["points"]}</td><td class="key">{num(t["ppm"])}</td></tr>'
+            f'<td>{t["played"]}</td><td>{t["points"]}</td><td class="key">{num(t["ppm"])}</td>'
+            f'<td>{num(t["gdpm"], sign=True)}</td><td>{num(t["gfpm"])}</td></tr>'
         )
         if t["rank"] == PROMOTE:  # the promotion line
-            rows.append('<tr class="line"><td colspan="5">Grænse for oprykning</td></tr>')
-    cols = '<col class="c-rk"><col>' + '<col class="c-n">' * 3
+            rows.append('<tr class="line"><td colspan="7">Grænse for oprykning</td></tr>')
+    cols = '<col class="c-rk"><col>' + '<col class="c-n">' * 5
     return f'<table><colgroup>{cols}</colgroup>{head}{"".join(rows)}</table>'
 
 
@@ -166,7 +176,10 @@ def render(teams):
         ("De bedste 2'ere", f"De {slots} bedste 2'ere rykker op. Under linjen står de øvrige hold, og hold med udeblivelse står nederst.", rest),
     ]
     body = "".join(f'<h2>{h}</h2><p class="note">{n}</p>{group(ts)}' for h, n, ts in sections if ts)
-    now = datetime.datetime.now(datetime.timezone.utc).strftime("%d-%m-%Y kl. %H:%M UTC")
+    # Danish time (handles summer/winter time); the GitHub server itself runs on UTC
+    now = datetime.datetime.now(ZoneInfo("Europe/Copenhagen")).strftime("%d-%m-%Y kl. %H:%M")
+    me = any(t["team"] == MY_TEAM for t in teams)
+    find = f'<br><a class="mine" href="#me">Find {html.escape(MY_TEAM)}</a>' if me else ""
     return f"""<!doctype html>
 <html lang="da"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -174,9 +187,9 @@ def render(teams):
 <title>Hvem rykker op? - Herre Senior 4 7:7</title>
 <style>{CSS}</style></head><body><div class="in">
 <div class="hero"><p class="kick">Herre Senior 4 7:7 Efterår</p><h1>Hvem rykker op?</h1>
-<p class="sub">De {PROMOTE} bedste oprykningsberettigede hold på tværs af {len(POOLS)} puljer rykker op. Opdateret {now}.</p></div>
+<p class="sub">De {PROMOTE} bedste oprykningsberettigede hold på tværs af {len(POOLS)} puljer rykker op. Opdateret {now}.</p>{find}</div>
 {body}
-<p class="note foot"><b>K</b> kampe, <b>P</b> point, <b>P/K</b> point pr. kamp. Blåt rangnummer: rykker op. Rødt: kan ikke rykke op på grund af udeblivelse. ▲▼ viser flytning i placering siden stillingen sidst ændrede sig.</p>
+<p class="note foot"><b>K</b> kampe, <b>P</b> point, <b>P/K</b> point pr. kamp, <b>MF/K</b> målforskel pr. kamp, <b>M/K</b> scorede mål pr. kamp. Ved lighed afgør P/K, derefter MF/K, derefter M/K. Blåt rangnummer: rykker op. Rødt: kan ikke rykke op på grund af udeblivelse. ▲▼ viser flytning i placering siden stillingen sidst ændrede sig.</p>
 <p class="note">Kilde: dbu.dk. Næste hold i puljen rykker en plads op, når et hold har udeblivelse.</p>
 </div></body></html>"""
 
