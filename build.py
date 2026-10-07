@@ -113,6 +113,7 @@ th{background:var(--panel2);color:var(--mute);font-size:.8rem;font-weight:700;le
 td{text-align:center;vertical-align:middle;padding:.75rem 0;font-size:.875rem;border-bottom:1px solid var(--line)}
 tr:last-child td{border-bottom:0}
 th:first-child,td.rk{text-align:left;padding-left:calc(.8rem + .22rem)}  /* .22rem = the blue bar */
+td.rk{position:relative}
 .tm{text-align:left;padding-left:.25rem}
 .tm b{display:block;font-size:.875rem;font-weight:650;line-height:1.3}
 .tm small{display:block;font-size:.8rem;color:var(--mute)}
@@ -121,7 +122,7 @@ th:first-child,td.rk{text-align:left;padding-left:calc(.8rem + .22rem)}  /* .22r
 .b-up,.up .bd{background:var(--bup)} .b-out,.out .bd{background:var(--bout)}
 .up{background:linear-gradient(90deg,rgba(37,99,214,.16),transparent 70%)}
 .up td.rk{box-shadow:inset .22rem 0 0 var(--bup)}
-.mv{display:block;width:1.9rem;margin-top:.15rem;text-align:center;font-size:.75rem;font-style:normal;font-weight:700;color:var(--mute)}
+.mv{position:absolute;left:calc(.8rem + .22rem);top:calc(50% + 13.5px);width:1.9rem;text-align:center;line-height:1;font-size:.75rem;font-style:normal;font-weight:700;color:var(--mute)}
 .mv.u{color:var(--up)} .mv.d{color:var(--down)}
 .out .tm b{color:var(--mute)}
 .legend{margin-top:2rem;padding:1rem 1.1rem;background:var(--panel);border:1px solid var(--bd);border-radius:1rem;font-size:.92rem;color:var(--mute)}
@@ -136,11 +137,9 @@ th:first-child,td.rk{text-align:left;padding-left:calc(.8rem + .22rem)}  /* .22r
 """
 
 def arrow(m):
-    """Small arrow under the rank number: up, down or unchanged."""
-    if m is None:
-        return ""  # no earlier ranking to compare with
-    if m == 0:
-        return '<i class="mv" title="Uændret">–</i>'
+    """Small arrow under the rank number for teams that moved up or down."""
+    if not m:
+        return ""  # no earlier ranking to compare with, or the team did not move
     word = "plads" if abs(m) == 1 else "pladser"
     if m > 0:
         return f'<i class="mv u" title="Op {m} {word}">▲{m}</i>'

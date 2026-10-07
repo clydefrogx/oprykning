@@ -4,13 +4,9 @@ on:
   push:
     branches: [main]             # deploy as soon as changes are pushed
   schedule:
-    # Once a day, from 03:00 Danish time. GitHub only understands UTC, and Danish
-    # 03:00 is 01:xx UTC in summer but 02:xx UTC in winter, so the job is started
-    # at both times. GitHub often starts scheduled jobs hours late, so the steps
-    # below do not insist on an exact hour: the first start that is not too early
-    # builds the page, and the other one sees the day's marker and stops.
+    # Once a day. GitHub only understands UTC, so this is 03:07 Danish summer time
+    # and 02:07 in winter. GitHub may start it a little (or a lot) late.
     - cron: "7 1 * * *"
-    - cron: "7 2 * * *"
   workflow_dispatch:             # lets you start it by hand from the Actions tab
 
 permissions:
@@ -28,61 +24,20 @@ jobs:
     environment:
       name: github-pages
     steps:
-      - name: Danish date and time
-        id: time
-        run: |
-          echo "day=$(TZ=Europe/Copenhagen date +%F)" >> "$GITHUB_OUTPUT"
-          echo "hour=$(TZ=Europe/Copenhagen date +%H)" >> "$GITHUB_OUTPUT"
-      # Scheduled runs only: has today's nightly update already been done?
-      - if: github.event_name == 'schedule'
-        id: done
-        uses: actions/cache/restore@v4
-        with:
-          path: .nightly-marker
-          key: nightly-${{ steps.time.outputs.day }}
-          lookup-only: true
-      - name: Gate (scheduled runs build once a day, from 03:00 Danish time)
-        id: gate
-        run: |
-          hour="${{ steps.time.outputs.hour }}"
-          if [ "${{ github.event_name }}" = "schedule" ] && [ "$((10#$hour))" -lt 3 ]; then
-            echo "Danish hour is $hour, before 03: skipping"
-            echo "go=false" >> "$GITHUB_OUTPUT"
-          elif [ "${{ steps.done.outputs.cache-hit }}" = "true" ]; then
-            echo "Today's update is already done: skipping"
-            echo "go=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "go=true" >> "$GITHUB_OUTPUT"
-          fi
-      - if: steps.gate.outputs.go == 'true'
-        uses: actions/checkout@v4
-      - if: steps.gate.outputs.go == 'true'
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - if: steps.gate.outputs.go == 'true'
-        run: pip install requests beautifulsoup4
+      - run: pip install requests beautifulsoup4
       # history.json remembers the previous ranking (for the arrows); a fresh
       # key each run makes the cache save the updated file every time
-      - if: steps.gate.outputs.go == 'true'
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
         with:
           path: history.json
           key: history-${{ github.run_id }}
           restore-keys: history-
-      - if: steps.gate.outputs.go == 'true'
-        run: python build.py
-      - if: steps.gate.outputs.go == 'true'
-        uses: actions/upload-pages-artifact@v3
+      - run: python build.py
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: site
-      - if: steps.gate.outputs.go == 'true'
-        uses: actions/deploy-pages@v4
-      # Mark today as done, but only after a scheduled build has succeeded
-      - if: steps.gate.outputs.go == 'true' && github.event_name == 'schedule'
-        run: echo "${{ steps.time.outputs.day }}" > .nightly-marker
-      - if: steps.gate.outputs.go == 'true' && github.event_name == 'schedule'
-        uses: actions/cache/save@v4
-        with:
-          path: .nightly-marker
-          key: nightly-${{ steps.time.outputs.day }}
+      - uses: actions/deploy-pages@v4
