@@ -12,6 +12,8 @@ import time
 
 import requests
 from bs4 import BeautifulSoup
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 # Pool pages P1..P8 have consecutive numbers 496331..496338
 POOLS = {f"P{i}": f"https://www.dbu.dk/resultater/pulje/{496330 + i}/" for i in range(1, 9)}
@@ -23,9 +25,18 @@ TITLE = "Hvem rykker op? - Herre Senior 4 7:7"
 DESC = f"Stillingen lige nu i Herre Senior 4 7:7 Efterår. Hvis sæsonen sluttede i dag, ville disse {PROMOTE} hold rykke op. Opdateres hver dag kl. 03:00."
 
 
+# One slow or failing answer from dbu.dk should not cost us the whole nightly update:
+# try again up to 4 times, waiting longer each time (also for dropped connections)
+SESSION = requests.Session()
+SESSION.headers["User-Agent"] = "dbu-dashboard (student project)"
+_retry = HTTPAdapter(max_retries=Retry(total=4, backoff_factor=3, status_forcelist=(429, 500, 502, 503, 504)))
+SESSION.mount("https://", _retry)
+SESSION.mount("http://", _retry)
+
+
 def read_pool(url):
     """Read one pool page and return a list of teams (one dict per team)."""
-    r = requests.get(url, timeout=30, headers={"User-Agent": "dbu-dashboard (student project)"})
+    r = SESSION.get(url, timeout=30)
     r.raise_for_status()
     teams = []
     for tr in BeautifulSoup(r.text, "html.parser").find_all("tr"):
