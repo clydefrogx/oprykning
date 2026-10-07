@@ -151,7 +151,7 @@ def group(teams):
     head = ('<tr><th>#</th><th class="tm">Hold</th><th title="Kampe">K</th>'
             '<th title="Point">P</th>'
             '<th title="Pointgennemsnit: point pr. kamp">P/K</th>'
-            '<th title="Målgennemsnit: målforskel pr. registreret kamp">MF/K</th><th></th></tr>')
+            '<th title="Målgennemsnit: målforskel pr. kamp">MF/K</th><th></th></tr>')
     rows = []
     for t in teams:
         cls = "up" if t["promotes"] else ("rel" if t["relegated"] else ("out" if not t["eligible"] else ""))
@@ -210,7 +210,7 @@ def render(teams):
 <p><b>K</b> kampe</p>
 <p><b>P</b> point</p>
 <p><b>P/K</b> pointgennemsnit (point pr. kamp)</p>
-<p><b>MF/K</b> målgennemsnit (målforskel pr. registreret kamp)</p>
+<p><b>MF/K</b> målgennemsnit (målforskel pr. kamp)</p>
 <p><span class="sw b-up"></span>Rykker op</p>
 <p><span class="sw b-rel"></span>Rykker ned</p>
 <p><span class="sw b-out"></span>Kan ikke rykke op (udeblivelse)</p>
