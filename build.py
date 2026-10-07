@@ -212,7 +212,7 @@ def render(teams):
 <p><b>P/K</b> pointgennemsnit (point pr. kamp)</p>
 <p><b>MF/K</b> målgennemsnit (målforskel pr. registreret kamp)</p>
 <p><span class="sw b-up"></span>Rykker op</p>
-<p><span class="sw b-rel"></span>Rykker ned: de sidste i puljen (10 hold: 2, 9 hold: 1, 8 hold: ingen), også hold med udeblivelse</p>
+<p><span class="sw b-rel"></span>Rykker ned: de sidste i puljen</p>
 <p><span class="sw b-out"></span>Kan ikke rykke op (udeblivelse)</p>
 <p><b>(nr. x)</b> placering når hold med udeblivelse ikke tælles med</p>
 <p><span class="dot"></span>{html.escape(MY_TEAM)} er dit hold</p>
