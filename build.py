@@ -79,12 +79,15 @@ def rank_all(pools):
         for t in teams:
             t["relegated"] = t["place"] > len(teams) - down
     flat = [t for teams in pools.values() for t in teams]
-    # rules in order: eligible, place in pool, points/match, goal diff/match, goals/match
-    flat.sort(key=lambda t: (not t["eligible"], t["elig_place"] or 99, -t["ppm"], -t["gdpm"], -t["gfpm"]))
-    for i, t in enumerate(flat, 1):
+    # rules in order: place in pool (a no-show team uses its own place), points/match, goal diff/match, goals/match
+    flat.sort(key=lambda t: (t["elig_place"] if t["eligible"] else t["place"], -t["ppm"], -t["gdpm"], -t["gfpm"]))
+    promoted = [t for t in flat if t["eligible"]][:PROMOTE]  # the best teams that showed up move up
+    moving_up = {id(t) for t in promoted}
+    ranked = promoted + [t for t in flat if id(t) not in moving_up]  # everyone else follows, still in rule order
+    for i, t in enumerate(ranked, 1):
         t["rank"] = i
-        t["promotes"] = t["eligible"] and i <= PROMOTE
-    return flat
+        t["promotes"] = id(t) in moving_up
+    return ranked
 
 
 def today_dk():
@@ -177,14 +180,14 @@ def group(teams):
 
 def render(teams):
     """Return the finished HTML page as text."""
-    winners = [t for t in teams if t["elig_place"] == 1]
-    seconds = [t for t in teams if t["elig_place"] != 1 and t["rank"] <= PROMOTE]  # the best 2nds, who move up
-    rest = [t for t in teams if t["elig_place"] != 1 and t["rank"] > PROMOTE]  # everyone below the line, no-shows last
+    winners = [t for t in teams if t["promotes"] and t["elig_place"] == 1]
+    seconds = [t for t in teams if t["promotes"] and t["elig_place"] != 1]  # the best 2nds, who move up
+    rest = [t for t in teams if not t["promotes"]]  # everyone else, in rule order
     slots = PROMOTE - len(winners)  # places left for the 2nds
     sections = [
         ("Puljevindere", f"{len(winners)} pladser", "Nr. 1 i hver pulje rykker op.", winners),
         ("De bedste 2'ere", f"{slots} pladser", f"De {slots} bedste 2'ere rykker op.", seconds),
-        ("Resten", f"{len(rest)} hold", "Disse hold rykker ikke op. De røde rykker ned. Hold med udeblivelse står nederst.", rest),
+        ("Resten", f"{len(rest)} hold", "Disse hold rykker ikke op. De røde rykker ned.", rest),
     ]
     body = "".join(f'<h2>{h}<span>{b}</span></h2><p class="note">{n}</p>{group(ts)}' for h, b, n, ts in sections if ts)
     return f"""<!doctype html>
