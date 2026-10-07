@@ -20,7 +20,6 @@ from urllib3.util.retry import Retry
 # Pool pages P1..P8 have consecutive numbers 496331..496338
 POOLS = {f"P{i}": f"https://www.dbu.dk/resultater/pulje/{496330 + i}/" for i in range(1, 9)}
 PROMOTE = 12  # the 12 best eligible teams move up
-RELEGATE = 2  # the last 2 teams (that showed up) in each pool move down
 MY_TEAM = "Union 9"  # marked with a dot in the tables
 SITE_URL = "https://clydefrogx.github.io/oprykning/"  # share previews need the full address
 ASSETS = pathlib.Path("assets")  # icons, share image and manifest, copied into site/
@@ -58,6 +57,11 @@ def read_pool(url):
     return teams
 
 
+def relegated_count(pool_size):
+    """How many teams at the bottom of a pool move down: 10 teams -> 2, 9 teams -> 1, 8 or fewer -> none."""
+    return 2 if pool_size >= 10 else (1 if pool_size == 9 else 0)
+
+
 def rank_all(pools):
     """Apply the cross-pool rules and return all teams in final order."""
     for name, teams in pools.items():
@@ -71,8 +75,9 @@ def rank_all(pools):
             t["ppm"] = t["points"] / k
             t["gdpm"] = (t["gf"] - t["ga"]) / k
             t["gfpm"] = t["gf"] / k
-        for t in teams:  # n is now the number of teams in this pool that showed up
-            t["relegated"] = t["eligible"] and t["elig_place"] > max(n - RELEGATE, 1)
+        down = relegated_count(len(teams))  # by place in DBU's table, so no-show teams can move down too
+        for t in teams:
+            t["relegated"] = t["place"] > len(teams) - down
     flat = [t for teams in pools.values() for t in teams]
     # rules in order: eligible, place in pool, points/match, goal diff/match, goals/match
     flat.sort(key=lambda t: (not t["eligible"], t["elig_place"] or 99, -t["ppm"], -t["gdpm"], -t["gfpm"]))
@@ -129,7 +134,7 @@ th:first-child,td.rk{text-align:left;padding-left:calc(.8rem + .22rem)}  /* .22r
 .up td.rk{box-shadow:inset .22rem 0 0 var(--bup)}
 .rel{background:linear-gradient(90deg,rgba(163,40,31,.16),transparent 70%)}
 .rel td.rk{box-shadow:inset .22rem 0 0 var(--rel)}
-.out .tm b{color:var(--mute)}
+.dim .tm b{color:var(--mute)}
 .legend{margin-top:2rem;padding:1rem 1.1rem;background:var(--panel);border:1px solid var(--bd);border-radius:1rem;font-size:.92rem;color:var(--mute)}
 .legend p{margin:.45rem 0}
 .legend b{color:var(--fg)}
@@ -150,6 +155,8 @@ def group(teams):
     rows = []
     for t in teams:
         cls = "up" if t["promotes"] else ("rel" if t["relegated"] else ("out" if not t["eligible"] else ""))
+        if not t["eligible"]:
+            cls += " dim"  # no-show: dimmed name (the badge is hollow, or red if the team is relegated)
         dot = '<span class="dot" title="Dit hold"></span>' if t["team"] == MY_TEAM else ""
         ep = t["elig_place"]
         if not t["eligible"]:
@@ -205,7 +212,7 @@ def render(teams):
 <p><b>P/K</b> pointgennemsnit (point pr. kamp)</p>
 <p><b>MF/K</b> målgennemsnit (målforskel pr. registreret kamp)</p>
 <p><span class="sw b-up"></span>Rykker op</p>
-<p><span class="sw b-rel"></span>Rykker ned (de to sidste i puljen, uden hold med udeblivelse)</p>
+<p><span class="sw b-rel"></span>Rykker ned: de sidste i puljen (10 hold: 2, 9 hold: 1, 8 hold: ingen), også hold med udeblivelse</p>
 <p><span class="sw b-out"></span>Kan ikke rykke op (udeblivelse)</p>
 <p><b>(nr. x)</b> placering når hold med udeblivelse ikke tælles med</p>
 <p><span class="dot"></span>{html.escape(MY_TEAM)} er dit hold</p>
