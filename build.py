@@ -4,11 +4,13 @@ Run:      python build.py
 Output:   site/index.html  (open it in a browser)
 Needs:    pip install requests beautifulsoup4
 """
+import datetime
 import html
 import pathlib
 import re
 import shutil
 import time
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import requests
 from bs4 import BeautifulSoup
@@ -75,6 +77,15 @@ def rank_all(pools):
         t["rank"] = i
         t["promotes"] = t["eligible"] and i <= PROMOTE
     return flat
+
+
+def today_dk():
+    """Today's date in Denmark as dd-mm-yyyy (UTC date if the time zone data is missing, e.g. on Windows)."""
+    try:
+        now = datetime.datetime.now(ZoneInfo("Europe/Copenhagen"))
+    except ZoneInfoNotFoundError:
+        now = datetime.datetime.now(datetime.timezone.utc)
+    return now.strftime("%d-%m-%Y")
 
 
 def num(x, sign=False):
@@ -193,6 +204,7 @@ def render(teams):
 <p>Næste hold i puljen rykker en plads op, når et hold er udeblevet.</p>
 </div>
 <p class="src">Kilde: dbu.dk.</p>
+<p class="src">Opdateret {today_dk()}</p>
 </div></body></html>"""
 
 
