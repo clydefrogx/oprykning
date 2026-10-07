@@ -4,11 +4,13 @@ on:
   push:
     branches: [main]             # deploy as soon as changes are pushed
   schedule:
-    # Once a day at 03:00 Danish time. GitHub only understands UTC, and Danish
-    # 03:00 is 01:00 UTC in summer but 02:00 UTC in winter, so the job is
-    # started at both times and the "gate" step below lets only the right one run.
-    - cron: "0 1 * * *"
-    - cron: "0 2 * * *"
+    # Once a day, from 03:00 Danish time. GitHub only understands UTC, and Danish
+    # 03:00 is 01:xx UTC in summer but 02:xx UTC in winter, so the job is started
+    # at both times. GitHub often starts scheduled jobs hours late, so the steps
+    # below do not insist on an exact hour: the first start that is not too early
+    # builds the page, and the other one sees the day's marker and stops.
+    - cron: "7 1 * * *"
+    - cron: "7 2 * * *"
   workflow_dispatch:             # lets you start it by hand from the Actions tab
 
 permissions:
@@ -26,12 +28,28 @@ jobs:
     environment:
       name: github-pages
     steps:
-      - name: Gate (scheduled runs only continue at 03:00 Danish time)
+      - name: Danish date and time
+        id: time
+        run: |
+          echo "day=$(TZ=Europe/Copenhagen date +%F)" >> "$GITHUB_OUTPUT"
+          echo "hour=$(TZ=Europe/Copenhagen date +%H)" >> "$GITHUB_OUTPUT"
+      # Scheduled runs only: has today's nightly update already been done?
+      - if: github.event_name == 'schedule'
+        id: done
+        uses: actions/cache/restore@v4
+        with:
+          path: .nightly-marker
+          key: nightly-${{ steps.time.outputs.day }}
+          lookup-only: true
+      - name: Gate (scheduled runs build once a day, from 03:00 Danish time)
         id: gate
         run: |
-          hour=$(TZ=Europe/Copenhagen date +%H)
-          if [ "${{ github.event_name }}" = "schedule" ] && [ "$hour" != "03" ]; then
-            echo "Danish hour is $hour, not 03: skipping"
+          hour="${{ steps.time.outputs.hour }}"
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "$((10#$hour))" -lt 3 ]; then
+            echo "Danish hour is $hour, before 03: skipping"
+            echo "go=false" >> "$GITHUB_OUTPUT"
+          elif [ "${{ steps.done.outputs.cache-hit }}" = "true" ]; then
+            echo "Today's update is already done: skipping"
             echo "go=false" >> "$GITHUB_OUTPUT"
           else
             echo "go=true" >> "$GITHUB_OUTPUT"
@@ -60,3 +78,11 @@ jobs:
           path: site
       - if: steps.gate.outputs.go == 'true'
         uses: actions/deploy-pages@v4
+      # Mark today as done, but only after a scheduled build has succeeded
+      - if: steps.gate.outputs.go == 'true' && github.event_name == 'schedule'
+        run: echo "${{ steps.time.outputs.day }}" > .nightly-marker
+      - if: steps.gate.outputs.go == 'true' && github.event_name == 'schedule'
+        uses: actions/cache/save@v4
+        with:
+          path: .nightly-marker
+          key: nightly-${{ steps.time.outputs.day }}
