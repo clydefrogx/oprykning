@@ -5,7 +5,6 @@ Output:   site/index.html  (open it in a browser)
 Needs:    pip install requests beautifulsoup4
 """
 import html
-import json
 import pathlib
 import re
 import shutil
@@ -72,28 +71,8 @@ def num(x, sign=False):
     return (f"{x:+.2f}" if sign else f"{x:.2f}").replace(".", ",")
 
 
-HIST = pathlib.Path("history.json")  # remembers the last two rankings, so arrows can be shown
-
-
-def apply_history(teams):
-    """Set t["move"]: places gained (+) or lost (-) since the standings last changed."""
-    now = {f'{t["pool"]}|{t["team"]}': t["rank"] for t in teams}
-    fingerprint = repr(sorted((t["pool"], t["team"], t["place"], t["played"], t["points"], t["gf"], t["ga"], t["noshow"])
-                              for t in teams))
-    try:
-        h = json.loads(HIST.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        h = {}
-    if h.get("fp") != fingerprint:  # new results: the old ranking becomes the one we compare with
-        h = {"fp": fingerprint, "previous": h.get("current", {}), "current": now}
-        HIST.write_text(json.dumps(h, ensure_ascii=False, indent=1), encoding="utf-8")
-    for t in teams:
-        old = h.get("previous", {}).get(f'{t["pool"]}|{t["team"]}')
-        t["move"] = None if old is None else old - t["rank"]  # positive = moved up
-
-
 CSS = """
-:root{color-scheme:dark;--bg:#060b11;--panel:#0d1925;--panel2:#112133;--line:#172636;--bd:#1f3042;--fg:#f4f7fa;--mute:#adb9c5;--up:#3ddc84;--down:#ff6b75;--bup:#2563d6;--bupd:#1d4ea8;--bout:#a3281f;--blue:#7aa5ff;--gold:#ffc83d}
+:root{color-scheme:dark;--bg:#060b11;--panel:#0d1925;--panel2:#112133;--line:#172636;--bd:#1f3042;--fg:#f4f7fa;--mute:#adb9c5;--bup:#2563d6;--bupd:#1d4ea8;--bout:#a3281f;--blue:#7aa5ff;--gold:#ffc83d}
 *{box-sizing:border-box}
 body{margin:0;background:radial-gradient(70rem 26rem at 50% -8rem,rgba(37,99,214,.3),transparent 70%) no-repeat,var(--bg);color:var(--fg);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 .in{max-width:46rem;margin:0 auto;padding:0 .75rem 3rem}
@@ -113,7 +92,6 @@ th{background:var(--panel2);color:var(--mute);font-size:.8rem;font-weight:700;le
 td{text-align:center;vertical-align:middle;padding:.75rem 0;font-size:.875rem;border-bottom:1px solid var(--line)}
 tr:last-child td{border-bottom:0}
 th:first-child,td.rk{text-align:left;padding-left:calc(.8rem + .22rem)}  /* .22rem = the blue bar */
-td.rk{position:relative}
 .tm{text-align:left;padding-left:.25rem}
 .tm b{display:block;font-size:.875rem;font-weight:650;line-height:1.3}
 .tm small{display:block;font-size:.8rem;color:var(--mute)}
@@ -122,8 +100,6 @@ td.rk{position:relative}
 .b-up,.up .bd{background:var(--bup)} .b-out,.out .bd{background:var(--bout)}
 .up{background:linear-gradient(90deg,rgba(37,99,214,.16),transparent 70%)}
 .up td.rk{box-shadow:inset .22rem 0 0 var(--bup)}
-.mv{position:absolute;left:calc(.8rem + .22rem);top:calc(50% + 13.5px);width:1.9rem;text-align:center;line-height:1;font-size:.75rem;font-style:normal;font-weight:700;color:var(--mute)}
-.mv.u{color:var(--up)} .mv.d{color:var(--down)}
 .out .tm b{color:var(--mute)}
 .legend{margin-top:2rem;padding:1rem 1.1rem;background:var(--panel);border:1px solid var(--bd);border-radius:1rem;font-size:.92rem;color:var(--mute)}
 .legend p{margin:.45rem 0}
@@ -135,16 +111,6 @@ td.rk{position:relative}
 @media(max-width:26rem){.in{padding-left:.5rem;padding-right:.5rem}}
 @media(min-width:40rem){.in{padding:0 1rem 4rem}h1{font-size:3rem}.c-rk{width:4rem}.c-n{width:4.2rem}.c-s{width:.8rem}}
 """
-
-def arrow(m):
-    """Small arrow under the rank number for teams that moved up or down."""
-    if not m:
-        return ""  # no earlier ranking to compare with, or the team did not move
-    word = "plads" if abs(m) == 1 else "pladser"
-    if m > 0:
-        return f'<i class="mv u" title="Op {m} {word}">▲{m}</i>'
-    return f'<i class="mv d" title="Ned {-m} {word}">▼{-m}</i>'
-
 
 def group(teams):
     """One standings card: a header row and one row per team."""
@@ -164,7 +130,7 @@ def group(teams):
         else:
             sub = f'{t["pool"]}, nr. {t["place"]}'
         rows.append(  # one row per team, everything centred vertically
-            f'<tr class="{cls}"><td class="rk"><span class="bd">{t["rank"]}</span>{arrow(t.get("move"))}</td>'
+            f'<tr class="{cls}"><td class="rk"><span class="bd">{t["rank"]}</span></td>'
             f'<td class="tm"><b>{html.escape(t["team"])}{dot}</b><small>{sub}</small></td>'
             f'<td>{t["played"]}</td><td>{t["points"]}</td>'
             f'<td>{num(t["ppm"])}</td><td>{num(t["gdpm"], sign=True)}</td><td></td></tr>'
@@ -212,7 +178,6 @@ def render(teams):
 <p><span class="sw b-up"></span>Rykker op</p>
 <p><span class="sw b-out"></span>Kan ikke rykke op (udeblivelse)</p>
 <p><b>(nr. x)</b> placering når hold med udeblivelse ikke tælles med</p>
-<p><b>▲▼</b> flytning i placering siden stillingen sidst ændrede sig</p>
 <p><span class="dot"></span>{html.escape(MY_TEAM)} er dit hold</p>
 <p>Næste hold i puljen rykker en plads op, når et hold er udeblevet.</p>
 </div>
@@ -229,7 +194,6 @@ def main():
     out.mkdir(exist_ok=True)
     shutil.copytree(ASSETS, out, dirs_exist_ok=True)  # icons, share image, manifest
     teams = rank_all(pools)
-    apply_history(teams)
     (out / "index.html").write_text(render(teams), encoding="utf-8")
     print("Wrote site/index.html with", sum(len(v) for v in pools.values()), "teams")
 

@@ -29,13 +29,6 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install requests beautifulsoup4
-      # history.json remembers the previous ranking (for the arrows); a fresh
-      # key each run makes the cache save the updated file every time
-      - uses: actions/cache@v4
-        with:
-          path: history.json
-          key: history-${{ github.run_id }}
-          restore-keys: history-
       - run: python build.py
       - uses: actions/upload-pages-artifact@v3
         with:
