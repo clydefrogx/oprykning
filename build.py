@@ -94,7 +94,7 @@ def num(x, sign=False):
 
 
 CSS = """
-:root{color-scheme:dark;--bg:#060b11;--panel:#0d1925;--panel2:#112133;--line:#172636;--bd:#1f3042;--fg:#f4f7fa;--mute:#adb9c5;--bup:#2563d6;--bupd:#1d4ea8;--bout:#a3281f;--blue:#7aa5ff;--gold:#ffc83d}
+:root{color-scheme:dark;--bg:#060b11;--panel:#0d1925;--panel2:#112133;--line:#172636;--bd:#1f3042;--fg:#f4f7fa;--mute:#adb9c5;--bup:#2563d6;--bupd:#1d4ea8;--ring:#6b7886;--blue:#7aa5ff;--gold:#ffc83d}
 *{box-sizing:border-box}
 body{margin:0;background:radial-gradient(70rem 26rem at 50% -8rem,rgba(37,99,214,.3),transparent 70%) no-repeat,var(--bg);color:var(--fg);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 .in{max-width:46rem;margin:0 auto;padding:0 .75rem 3rem}
@@ -119,7 +119,8 @@ th:first-child,td.rk{text-align:left;padding-left:calc(.8rem + .22rem)}  /* .22r
 .tm small{display:block;font-size:.8rem;color:var(--mute)}
 .dot{display:inline-block;width:.6rem;height:.6rem;margin-left:.45rem;border-radius:50%;background:var(--gold);box-shadow:0 0 0 .18rem rgba(255,200,61,.25)}
 .bd{display:inline-block;min-width:1.9rem;padding:.15rem .3rem;border-radius:.6rem;background:var(--bd);font-weight:700;font-size:.95rem;line-height:1.2;text-align:center}
-.b-up,.up .bd{background:var(--bup)} .b-out,.out .bd{background:var(--bout)}
+.b-up,.up .bd{background:var(--bup)}
+.b-out,.out .bd{background:transparent;color:var(--mute);box-shadow:inset 0 0 0 1.5px var(--ring)}
 .up{background:linear-gradient(90deg,rgba(37,99,214,.16),transparent 70%)}
 .up td.rk{box-shadow:inset .22rem 0 0 var(--bup)}
 .out .tm b{color:var(--mute)}
