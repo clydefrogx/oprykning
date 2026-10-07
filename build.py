@@ -20,6 +20,7 @@ from urllib3.util.retry import Retry
 # Pool pages P1..P8 have consecutive numbers 496331..496338
 POOLS = {f"P{i}": f"https://www.dbu.dk/resultater/pulje/{496330 + i}/" for i in range(1, 9)}
 PROMOTE = 12  # the 12 best eligible teams move up
+RELEGATE = 2  # the last 2 teams (that showed up) in each pool move down
 MY_TEAM = "Union 9"  # marked with a dot in the tables
 SITE_URL = "https://clydefrogx.github.io/oprykning/"  # share previews need the full address
 ASSETS = pathlib.Path("assets")  # icons, share image and manifest, copied into site/
@@ -70,6 +71,8 @@ def rank_all(pools):
             t["ppm"] = t["points"] / k
             t["gdpm"] = (t["gf"] - t["ga"]) / k
             t["gfpm"] = t["gf"] / k
+        for t in teams:  # n is now the number of teams in this pool that showed up
+            t["relegated"] = t["eligible"] and t["elig_place"] > max(n - RELEGATE, 1)
     flat = [t for teams in pools.values() for t in teams]
     # rules in order: eligible, place in pool, points/match, goal diff/match, goals/match
     flat.sort(key=lambda t: (not t["eligible"], t["elig_place"] or 99, -t["ppm"], -t["gdpm"], -t["gfpm"]))
@@ -94,7 +97,7 @@ def num(x, sign=False):
 
 
 CSS = """
-:root{color-scheme:dark;--bg:#060b11;--panel:#0d1925;--panel2:#112133;--line:#172636;--bd:#1f3042;--fg:#f4f7fa;--mute:#adb9c5;--bup:#2563d6;--bupd:#1d4ea8;--ring:#6b7886;--blue:#7aa5ff;--gold:#ffc83d}
+:root{color-scheme:dark;--bg:#060b11;--panel:#0d1925;--panel2:#112133;--line:#172636;--bd:#1f3042;--fg:#f4f7fa;--mute:#adb9c5;--bup:#2563d6;--bupd:#1d4ea8;--rel:#a3281f;--ring:#6b7886;--blue:#7aa5ff;--gold:#ffc83d}
 *{box-sizing:border-box}
 body{margin:0;background:radial-gradient(70rem 26rem at 50% -8rem,rgba(37,99,214,.3),transparent 70%) no-repeat,var(--bg);color:var(--fg);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 .in{max-width:46rem;margin:0 auto;padding:0 .75rem 3rem}
@@ -120,9 +123,12 @@ th:first-child,td.rk{text-align:left;padding-left:calc(.8rem + .22rem)}  /* .22r
 .dot{display:inline-block;width:.6rem;height:.6rem;margin-left:.45rem;border-radius:50%;background:var(--gold);box-shadow:0 0 0 .18rem rgba(255,200,61,.25)}
 .bd{display:inline-block;min-width:1.9rem;padding:.15rem .3rem;border-radius:.6rem;background:var(--bd);font-weight:700;font-size:.95rem;line-height:1.2;text-align:center}
 .b-up,.up .bd{background:var(--bup)}
+.b-rel,.rel .bd{background:var(--rel)}
 .b-out,.out .bd{background:transparent;color:var(--mute);box-shadow:inset 0 0 0 1.5px var(--ring)}
 .up{background:linear-gradient(90deg,rgba(37,99,214,.16),transparent 70%)}
 .up td.rk{box-shadow:inset .22rem 0 0 var(--bup)}
+.rel{background:linear-gradient(90deg,rgba(163,40,31,.16),transparent 70%)}
+.rel td.rk{box-shadow:inset .22rem 0 0 var(--rel)}
 .out .tm b{color:var(--mute)}
 .legend{margin-top:2rem;padding:1rem 1.1rem;background:var(--panel);border:1px solid var(--bd);border-radius:1rem;font-size:.92rem;color:var(--mute)}
 .legend p{margin:.45rem 0}
@@ -143,7 +149,7 @@ def group(teams):
             '<th title="Målgennemsnit: målforskel pr. registreret kamp">MF/K</th><th></th></tr>')
     rows = []
     for t in teams:
-        cls = "up" if t["promotes"] else ("out" if not t["eligible"] else "")
+        cls = "up" if t["promotes"] else ("rel" if t["relegated"] else ("out" if not t["eligible"] else ""))
         dot = '<span class="dot" title="Dit hold"></span>' if t["team"] == MY_TEAM else ""
         ep = t["elig_place"]
         if not t["eligible"]:
@@ -171,7 +177,7 @@ def render(teams):
     sections = [
         ("Puljevindere", f"{len(winners)} pladser", "Nr. 1 i hver pulje rykker op.", winners),
         ("De bedste 2'ere", f"{slots} pladser", f"De {slots} bedste 2'ere rykker op.", seconds),
-        ("Resten", f"{len(rest)} hold", "Disse hold rykker ikke op. Hold med udeblivelse står nederst.", rest),
+        ("Resten", f"{len(rest)} hold", "Disse hold rykker ikke op. De røde rykker ned. Hold med udeblivelse står nederst.", rest),
     ]
     body = "".join(f'<h2>{h}<span>{b}</span></h2><p class="note">{n}</p>{group(ts)}' for h, b, n, ts in sections if ts)
     return f"""<!doctype html>
@@ -199,6 +205,7 @@ def render(teams):
 <p><b>P/K</b> pointgennemsnit (point pr. kamp)</p>
 <p><b>MF/K</b> målgennemsnit (målforskel pr. registreret kamp)</p>
 <p><span class="sw b-up"></span>Rykker op</p>
+<p><span class="sw b-rel"></span>Rykker ned (de to sidste i puljen, uden hold med udeblivelse)</p>
 <p><span class="sw b-out"></span>Kan ikke rykke op (udeblivelse)</p>
 <p><b>(nr. x)</b> placering når hold med udeblivelse ikke tælles med</p>
 <p><span class="dot"></span>{html.escape(MY_TEAM)} er dit hold</p>
