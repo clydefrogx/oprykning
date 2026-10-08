@@ -65,26 +65,31 @@ def relegated_count(pool_size):
 def rank_all(pools):
     """Apply the cross-pool rules and return all teams in final order."""
     for name, teams in pools.items():
-        found_winner = False
-        for t in sorted(teams, key=lambda t: t["place"]):
+        ordered = sorted(teams, key=lambda t: t["place"])
+        for t in ordered:
             t["pool"] = name
             t["eligible"] = not t["noshow"]  # a team with udeblivelse can never move up
-            # pool winner: the best-placed team that showed up (if no. 1 has udeblivelse, no. 2 takes over)
-            t["winner"] = t["eligible"] and not found_winner
-            found_winner = found_winner or t["winner"]
+            t["winner"] = t["second"] = False
+            t["noshow_above"] = [o["place"] for o in ordered if o["place"] < t["place"] and o["noshow"]]
             k = t["played"] or 1  # avoid dividing by zero
             t["ppm"] = t["points"] / k
             t["gdpm"] = (t["gf"] - t["ga"]) / k
             t["gfpm"] = t["gf"] / k
+        # pool winner: the best-placed team that showed up (if no. 1 has udeblivelse, no. 2 takes over);
+        # the pool's candidate for "De bedste 2'ere" is the team directly below the winner
+        first = next((i for i, t in enumerate(ordered) if t["eligible"]), None)
+        if first is not None:
+            ordered[first]["winner"] = True
+            if first + 1 < len(ordered):
+                ordered[first + 1]["second"] = True
         down = relegated_count(len(teams))  # by place in DBU's table, so no-show teams can move down too
         for t in teams:
             t["relegated"] = t["place"] > len(teams) - down
     flat = [t for teams in pools.values() for t in teams]
     perf = lambda t: (-t["ppm"], -t["gdpm"], -t["gfpm"])  # points/match, then goal diff/match, then goals/match
     winners = sorted((t for t in flat if t["winner"]), key=perf)
-    # the best 2nds: teams in 2nd place (unless they took over as pool winner); one with
-    # udeblivelse is skipped, so the next best 2nd gets its place
-    seconds = [t for t in sorted(flat, key=perf) if t["place"] == 2 and not t["winner"] and t["eligible"]]
+    # the best 2nds: each pool's candidate; one with udeblivelse is skipped, so the next best 2nd gets its place
+    seconds = [t for t in sorted(flat, key=perf) if t["second"] and t["eligible"]]
     promoted = winners + seconds[:PROMOTE - len(winners)]
     moving_up = {id(t) for t in promoted}
     # everyone else in order of their real place in the pool, then the same rules
@@ -169,8 +174,10 @@ def group(teams):
         dot = '<span class="dot" title="Dit hold"></span>' if t["team"] == MY_TEAM else ""
         if not t["eligible"]:
             sub = f'{t["pool"]}, nr. {t["place"]}, udeblivelse'
-        elif t["winner"] and t["place"] != 1:
-            sub = f'{t["pool"]}, nr. {t["place"]} (nr. 1 er udeblevet)'
+        elif (t["winner"] and t["place"] != 1) or (t["second"] and t["place"] != 2):
+            gone = [str(x) for x in t["noshow_above"]]
+            gone = gone[0] if len(gone) == 1 else ", ".join(gone[:-1]) + " og " + gone[-1]
+            sub = f'{t["pool"]}, nr. {t["place"]} (nr. {gone} er udeblevet)'
         else:
             sub = f'{t["pool"]}, nr. {t["place"]}'
         rows.append(  # one row per team, everything centred vertically
