@@ -65,12 +65,13 @@ def relegated_count(pool_size):
 def rank_all(pools):
     """Apply the cross-pool rules and return all teams in final order."""
     for name, teams in pools.items():
-        n = 0
+        found_winner = False
         for t in sorted(teams, key=lambda t: t["place"]):
             t["pool"] = name
-            t["eligible"] = not t["noshow"]
-            n += t["eligible"]
-            t["elig_place"] = n if t["eligible"] else None  # place among eligible teams
+            t["eligible"] = not t["noshow"]  # a team with udeblivelse can never move up
+            # pool winner: the best-placed team that showed up (if no. 1 has udeblivelse, no. 2 takes over)
+            t["winner"] = t["eligible"] and not found_winner
+            found_winner = found_winner or t["winner"]
             k = t["played"] or 1  # avoid dividing by zero
             t["ppm"] = t["points"] / k
             t["gdpm"] = (t["gf"] - t["ga"]) / k
@@ -79,11 +80,16 @@ def rank_all(pools):
         for t in teams:
             t["relegated"] = t["place"] > len(teams) - down
     flat = [t for teams in pools.values() for t in teams]
-    # rules in order: place in pool (a no-show team uses its own place), points/match, goal diff/match, goals/match
-    flat.sort(key=lambda t: (t["elig_place"] if t["eligible"] else t["place"], -t["ppm"], -t["gdpm"], -t["gfpm"]))
-    promoted = [t for t in flat if t["eligible"]][:PROMOTE]  # the best teams that showed up move up
+    perf = lambda t: (-t["ppm"], -t["gdpm"], -t["gfpm"])  # points/match, then goal diff/match, then goals/match
+    winners = sorted((t for t in flat if t["winner"]), key=perf)
+    # the best 2nds: teams in 2nd place (unless they took over as pool winner); one with
+    # udeblivelse is skipped, so the next best 2nd gets its place
+    seconds = [t for t in sorted(flat, key=perf) if t["place"] == 2 and not t["winner"] and t["eligible"]]
+    promoted = winners + seconds[:PROMOTE - len(winners)]
     moving_up = {id(t) for t in promoted}
-    ranked = promoted + [t for t in flat if id(t) not in moving_up]  # everyone else follows, still in rule order
+    # everyone else in order of their real place in the pool, then the same rules
+    rest = sorted((t for t in flat if id(t) not in moving_up), key=lambda t: (t["place"],) + perf(t))
+    ranked = promoted + rest
     for i, t in enumerate(ranked, 1):
         t["rank"] = i
         t["promotes"] = id(t) in moving_up
@@ -161,11 +167,10 @@ def group(teams):
         if not t["eligible"]:
             cls += " dim"  # no-show: dimmed name (the badge is hollow, or red if the team is relegated)
         dot = '<span class="dot" title="Dit hold"></span>' if t["team"] == MY_TEAM else ""
-        ep = t["elig_place"]
         if not t["eligible"]:
             sub = f'{t["pool"]}, nr. {t["place"]}, udeblivelse'
-        elif ep != t["place"]:
-            sub = f'{t["pool"]}, nr. {t["place"]} (nr. {ep})'
+        elif t["winner"] and t["place"] != 1:
+            sub = f'{t["pool"]}, nr. {t["place"]} (nr. 1 er udeblevet)'
         else:
             sub = f'{t["pool"]}, nr. {t["place"]}'
         rows.append(  # one row per team, everything centred vertically
@@ -180,8 +185,8 @@ def group(teams):
 
 def render(teams):
     """Return the finished HTML page as text."""
-    winners = [t for t in teams if t["promotes"] and t["elig_place"] == 1]
-    seconds = [t for t in teams if t["promotes"] and t["elig_place"] != 1]  # the best 2nds, who move up
+    winners = [t for t in teams if t["promotes"] and t["winner"]]
+    seconds = [t for t in teams if t["promotes"] and not t["winner"]]  # the best 2nds, who move up
     rest = [t for t in teams if not t["promotes"]]  # everyone else, in rule order
     slots = PROMOTE - len(winners)  # places left for the 2nds
     sections = [
@@ -217,9 +222,7 @@ def render(teams):
 <p><span class="sw b-up"></span>Rykker op</p>
 <p><span class="sw b-rel"></span>Rykker ned</p>
 <p><span class="sw b-out"></span>Kan ikke rykke op (udeblivelse)</p>
-<p><b>(nr. x)</b> placering når hold med udeblivelse ikke tælles med</p>
 <p><span class="dot"></span>{html.escape(MY_TEAM)} er dit hold</p>
-<p>Næste hold i puljen rykker en plads op, når et hold er udeblevet.</p>
 </div>
 <p class="src">Kilde: dbu.dk.</p>
 <p class="src">Opdateret {today_dk()}</p>
