@@ -197,7 +197,7 @@ def render(teams):
     sections = [
         ("Puljevindere", f"{len(winners)} pladser", "Nr. 1 i hver pulje rykker op.", winners),
         ("De bedste 2'ere", f"{slots} pladser", f"De {slots} bedste 2'ere rykker op.", seconds),
-        ("Resten", f"{len(rest)} hold", "Disse hold rykker ikke op. De røde rykker ned.", rest),
+        ("Resten", f"{len(rest)} hold", "Disse hold rykker ikke op.", rest),
     ]
     body = "".join(f'<h2>{h}<span>{b}</span></h2><p class="note">{n}</p>{group(ts)}' for h, b, n, ts in sections if ts)
     return f"""<!doctype html>
