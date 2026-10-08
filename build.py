@@ -172,9 +172,7 @@ def group(teams):
         if not t["eligible"]:
             cls += " dim"  # no-show: dimmed name (the badge is hollow, or red if the team is relegated)
         dot = '<span class="dot" title="Dit hold"></span>' if t["team"] == MY_TEAM else ""
-        if not t["eligible"]:
-            sub = f'{t["pool"]}, nr. {t["place"]}, udeblivelse'
-        elif (t["winner"] and t["place"] != 1) or (t["second"] and t["place"] != 2):
+        if t["eligible"] and ((t["winner"] and t["place"] != 1) or (t["second"] and t["place"] != 2)):
             gone = [str(x) for x in t["noshow_above"]]
             gone = gone[0] if len(gone) == 1 else ", ".join(gone[:-1]) + " og " + gone[-1]
             sub = f'{t["pool"]}, nr. {t["place"]} (nr. {gone} er udeblevet)'
