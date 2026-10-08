@@ -226,7 +226,7 @@ def render(teams):
 <p><b>MF/K</b> målgennemsnit (målforskel pr. kamp)</p>
 <p><span class="sw b-up"></span>Rykker op</p>
 <p><span class="sw b-rel"></span>Rykker ned</p>
-<p><span class="sw b-out"></span>Kan ikke rykke op (udeblivelse)</p>
+<p><span class="sw b-out"></span>Udeblivelse</p>
 <p><span class="dot"></span>{html.escape(MY_TEAM)} er dit hold</p>
 </div>
 <p class="src">Kilde: dbu.dk.</p>
