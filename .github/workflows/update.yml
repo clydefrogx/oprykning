@@ -4,9 +4,9 @@ on:
   push:
     branches: [main]             # deploy as soon as changes are pushed
   schedule:
-    # Once a day at 02:43 UTC (04:43 Danish summer time, 03:43 in winter): a quiet
-    # time on GitHub, away from the busy top of the hour. It may still start late.
-    - cron: "43 2 * * *"
+    # Once a day at 21:43 UTC (23:43 Danish summer time, 22:43 in winter). GitHub has
+    # been starting scheduled runs about 6 hours late, so this usually runs early morning.
+    - cron: "43 21 * * *"
   workflow_dispatch:             # lets you start it by hand from the Actions tab
 
 permissions:
